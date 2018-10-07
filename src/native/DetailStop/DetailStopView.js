@@ -10,7 +10,7 @@ import {
 import PropTypes from 'prop-types';
 import { MapView } from 'expo';
 import { withNavigation } from 'react-navigation';
-import { FontAwesome } from '@expo/vector-icons';
+import { FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons';
 import ActivityIndicator from '../components/ActivityIndicator/ActivityIndicator';
 import { getTime } from '../../utils/Timer';
 
@@ -32,7 +32,13 @@ class DetailStopView extends PureComponent {
       </View>
     ),
     headerRight: (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+      <View style={{
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexDirection: 'row',
+      }}
+      >
         <TouchableOpacity
           onPress={!navigation.getParam('isFavorite') ? navigation.getParam('addFavorite') : navigation.getParam('deleteFavorite')}
           style={{ alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16 }}
@@ -43,6 +49,21 @@ class DetailStopView extends PureComponent {
             size={20}
           />
         </TouchableOpacity>
+        <TouchableOpacity
+          onPress={navigation.getParam('fetchBusStop')}
+          style={{
+            alignItems: 'center',
+            justifyContent: 'center',
+            paddingHorizontal: 16,
+            paddingTop: 4,
+          }}
+        >
+          <MaterialCommunityIcons
+            name="reload"
+            color="#99a2b4"
+            size={24}
+          />
+        </TouchableOpacity>
       </View>
     ),
   });
@@ -51,7 +72,12 @@ class DetailStopView extends PureComponent {
     const { fetchBusStop, navigation } = this.props;
     const { state: { params: { detailStop } } } = navigation;
 
-    navigation.setParams({ addFavorite: this.addFavorite, deleteFavorite: this.deleteFavorite, isFavorite: detailStop.isFavorite });
+    navigation.setParams({
+      addFavorite: this.addFavorite,
+      deleteFavorite: this.deleteFavorite,
+      isFavorite: detailStop.isFavorite,
+      fetchBusStop: () => fetchBusStop(detailStop.stopId),
+    });
 
     fetchBusStop(detailStop.stopId);
   }
@@ -104,7 +130,10 @@ class DetailStopView extends PureComponent {
       return null;
     }
 
-    const myTimes = infoStop.filter(el => parseInt(el.lineId, 10) === parseInt(item.lineId, 10));
+
+    const timesStop = Array.isArray(infoStop) ? infoStop : [{ ...infoStop }];
+
+    const myTimes = timesStop.filter(el => parseInt(el.lineId, 10) === parseInt(item.lineId, 10));
 
     if (myTimes) {
       return (
@@ -251,10 +280,16 @@ DetailStopView.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func,
   }),
-  infoStop: PropTypes.arrayOf(PropTypes.shape({
-    lineId: PropTypes.string,
-    busTimeLeft: PropTypes.number,
-  })),
+  infoStop: PropTypes.oneOfType([
+    PropTypes.arrayOf(PropTypes.shape({
+      lineId: PropTypes.string,
+      busTimeLeft: PropTypes.number,
+    })),
+    PropTypes.shape({
+      lineId: PropTypes.string,
+      busTimeLeft: PropTypes.number,
+    }),
+  ]),
   detailStop: PropTypes.shape({
     isFavorite: PropTypes.bool,
     lineId: PropTypes.string,

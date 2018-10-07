@@ -117,9 +117,10 @@ export default (state = initialState, action) => {
       loadingArrives: true,
     };
   case t.FETCH_BUS_STOP_SUCCESS: {
+    console.log(action.payload);
     return {
       ...state,
-      infoStop: action.payload.arrives && action.payload.arrives[0] ? action.payload.arrives : [],
+      infoStop: action.payload.arrives && action.payload.arrives ? action.payload.arrives : [],
       loadingArrives: false,
     };
   }
