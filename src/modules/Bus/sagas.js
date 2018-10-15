@@ -33,6 +33,8 @@ function* fetchInfoLine({
 
     yield put(actions.getFavorites());
 
+    console.log(response);
+
     yield put(actions.fetchInfoLineSuccess(response.data));
   } catch (e) {
     console.error(e);

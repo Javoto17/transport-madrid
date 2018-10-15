@@ -21,10 +21,15 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": false
     },
     "android": {
-      "package": "com.transport"
+      "package": "com.transport",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyCIMl-tmvP7Emtnt6od3wcQjZwoEYE9sFQ"
+        }
+      }
     }
   }
 }

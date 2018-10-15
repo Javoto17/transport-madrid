@@ -11,6 +11,7 @@ import {
   BusStopContentNumber,
   SubTextBusStop,
 } from './StopRow.style';
+import { convertLineNumber } from '../../../utils/Stops';
 
 class StopRow extends PureComponent {
   // constructor(props) {
@@ -36,6 +37,9 @@ class StopRow extends PureComponent {
       isFavorite,
     } = this.props;
 
+    const lines = Array.isArray(item.lineId) ? item.lineId.map(el => convertLineNumber(el)) : convertLineNumber(item.lineId);
+
+
     return (
       <BusStopContainer
         key={`line-${item.stopId}-${item.pmv}`}
@@ -55,7 +59,7 @@ class StopRow extends PureComponent {
             {item.postalAddress}
           </SubTextBusStop>
           <SubTextBusStop numberOfLines={2}>
-            {Array.isArray(item.lineId) ? `Lineas: ${item.lineId.join(' ')}` : `Linea: ${item.lineId}`}
+            {Array.isArray(lines) ? `Lineas: ${lines.join(' ')}` : `Linea: ${lines}`}
           </SubTextBusStop>
         </BusStopContent>
         <BusStopContentNumber>

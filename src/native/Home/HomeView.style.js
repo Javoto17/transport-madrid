@@ -14,6 +14,7 @@ export const LineContainer = styled.TouchableOpacity`
 
 export const LineContent = styled.View`
     flex:.82;
+    marginRight:16;
 `;
 
 export const NumberContent = styled.View`

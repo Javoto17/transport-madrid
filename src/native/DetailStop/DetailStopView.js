@@ -6,14 +6,18 @@ import {
   FlatList,
   Linking,
   Platform,
+  ScrollView,
 } from 'react-native';
 import PropTypes from 'prop-types';
 import { MapView } from 'expo';
 import { withNavigation } from 'react-navigation';
 import { FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons';
-import ActivityIndicator from '../components/ActivityIndicator/ActivityIndicator';
-import { getTime } from '../../utils/Timer';
 
+import ActivityIndicator from '../components/ActivityIndicator/ActivityIndicator';
+
+
+import { getTime } from '../../utils/Timer';
+import { convertLineNumber } from '../../utils/Stops';
 
 class DetailStopView extends PureComponent {
   static navigationOptions = ({ navigation }) => ({
@@ -40,12 +44,12 @@ class DetailStopView extends PureComponent {
       }}
       >
         <TouchableOpacity
-          onPress={!navigation.getParam('isFavorite') ? navigation.getParam('addFavorite') : navigation.getParam('deleteFavorite')}
+          onPress={!navigation.getParam('detailStop').isFavorite ? navigation.getParam('addFavorite') : navigation.getParam('deleteFavorite')}
           style={{ alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16 }}
         >
           <FontAwesome
             name="star"
-            style={{ color: navigation.getParam('isFavorite') ? '#027bff' : '#99a2b4' }}
+            color={navigation.getParam('detailStop').isFavorite ? '#027bff' : '#99a2b4'}
             size={20}
           />
         </TouchableOpacity>
@@ -75,7 +79,6 @@ class DetailStopView extends PureComponent {
     navigation.setParams({
       addFavorite: this.addFavorite,
       deleteFavorite: this.deleteFavorite,
-      isFavorite: detailStop.isFavorite,
       fetchBusStop: () => fetchBusStop(detailStop.stopId),
     });
 
@@ -84,10 +87,12 @@ class DetailStopView extends PureComponent {
 
   componentWillReceiveProps(nextProps) {
     const { navigation, detailStop } = this.props;
-    if (detailStop.isFavorite && detailStop.isFavorite !== nextProps.detailStop.isFavorite && nextProps.detailStop.isFavorite) {
-      navigation.setParams({ detailStop: nextProps.detailStop, isFavorite: nextProps.detailStop.isFavorite });
+    console.log(nextProps);
+
+    if (detailStop.isFavorite !== nextProps.detailStop.isFavorite && nextProps.detailStop.isFavorite) {
+      navigation.setParams({ detailStop: nextProps.detailStop, isFavorite: true });
     }
-    if (detailStop.isFavorite && detailStop.isFavorite !== nextProps.detailStop.isFavorite && !nextProps.detailStop.isFavorite) {
+    if (detailStop.isFavorite !== nextProps.detailStop.isFavorite && !nextProps.detailStop.isFavorite) {
       navigation.setParams({ detailStop: nextProps.detailStop, isFavorite: false });
     }
   }
@@ -139,7 +144,7 @@ class DetailStopView extends PureComponent {
       return (
         <View style={{ flex: 1, flexDirection: 'row', paddingBottom: 4 }}>
           <View style={{ flex: 0.33, alignItems: 'center' }}>
-            <Text style={{ fontFamily: 'nunito-regular', fontSize: 18 }}>{item.lineId}</Text>
+            <Text style={{ fontFamily: 'nunito-regular', fontSize: 18 }}>{`${item.lineId}`}</Text>
           </View>
           <View style={{ flex: 0.33, alignItems: 'center' }}>
             {myTimes[0] && myTimes[0].busTimeLeft && (<Text style={{ fontFamily: 'nunito-regular', fontSize: 18 }}>{`${getTime(myTimes[0].busTimeLeft)}`}</Text>)}
@@ -172,12 +177,12 @@ class DetailStopView extends PureComponent {
     const { navigation, infoStop, loadingArrives } = this.props;
     const { state: { params: { detailStop } } } = navigation;
 
-    const linesTime = Array.isArray(detailStop.lineId) ? detailStop.lineId.map(el => Object.assign({}, { lineId: el })) : [{ lineId: detailStop.lineId }];
+    const linesTime = Array.isArray(detailStop.lineId) ? detailStop.lineId.map(el => Object.assign({}, { lineId: convertLineNumber(el) })) : [{ lineId: convertLineNumber(detailStop.lineId) }];
 
 
     return (
-      <View style={{ flex: 1, backgroundColor: '#fafbfd' }}>
-        <View style={{ flex: 1, backgroundColor: '#fafbfd' }}>
+      <ScrollView style={{ flex: 1, backgroundColor: '#fafbfd', position: 'relative' }}>
+        <View style={{ flex: 1, backgroundColor: '#fafbfd', position: 'relative' }}>
           <View
             style={{
               backgroundColor: '#fff',
@@ -197,6 +202,9 @@ class DetailStopView extends PureComponent {
               </Text>
               <Text style={{ fontFamily: 'nunito-regular', fontSize: 16, color: '#4c4c4c' }}>
                 {detailStop.name}
+              </Text>
+              <Text onPress={this._handlePressDirections} style={{ fontFamily: 'nunito-regular', fontSize: 14, color: '#4c4c4c' }}>
+                {detailStop.postalAddress}
               </Text>
             </View>
 
@@ -232,6 +240,7 @@ class DetailStopView extends PureComponent {
           <MapView
             style={{
               flex: 0.34,
+              height: 125,
               marginBottom: 20,
             }}
             onPress={this._handlePressDirections}
@@ -247,11 +256,10 @@ class DetailStopView extends PureComponent {
               longitude: detailStop.longitude,
             }}
             />
+
           </MapView>
-
         </View>
-
-      </View>
+      </ScrollView>
     );
   }
 }
@@ -292,7 +300,10 @@ DetailStopView.propTypes = {
   ]),
   detailStop: PropTypes.shape({
     isFavorite: PropTypes.bool,
-    lineId: PropTypes.string,
+    lineId: PropTypes.oneOfType([
+      PropTypes.arrayOf(PropTypes.string),
+      PropTypes.string,
+    ]),
   }),
 };
 

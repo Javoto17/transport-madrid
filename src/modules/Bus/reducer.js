@@ -48,7 +48,7 @@ export default (state = initialState, action) => {
       ...state,
       infoLine: {
         ...action.payload,
-        stop: action.payload.stop.map(el => Object.assign({}, el, { isFavorite: state.listFavorites.some(favorite => favorite.stopId === el.stopId) })),
+        stop: Array.isArray(action.payload.stop) ? action.payload.stop.map(el => Object.assign({}, el, { isFavorite: state.listFavorites.some(favorite => favorite.stopId === el.stopId) })) : [],
       },
     };
   case t.FETCH_DIRECTION_LINE:
@@ -117,7 +117,6 @@ export default (state = initialState, action) => {
       loadingArrives: true,
     };
   case t.FETCH_BUS_STOP_SUCCESS: {
-    console.log(action.payload);
     return {
       ...state,
       infoStop: action.payload.arrives && action.payload.arrives ? action.payload.arrives : [],

@@ -31,7 +31,6 @@ class DirectionLineView extends Component {
 
   constructor(props) {
     super(props);
-    this.fetchDirectionLine = props.fetchDirectionLine.bind(this);
     this.navigation = props.navigation;
 
     this.state = {
@@ -48,11 +47,13 @@ class DirectionLineView extends Component {
   renderDirection = (infoLine, direction) => {
     const { navigation } = this.props;
     const { lineNumber } = this.state;
+
     const directionLine = direction ? 1 : 2;
 
     if (!infoLine) {
       return null;
     }
+
     const line = infoLine.Line;
 
     return (
@@ -60,7 +61,7 @@ class DirectionLineView extends Component {
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
           <View style={{ paddingHorizontal: 4 }}>
             <LineText>
-              {`${direction && line ? line.headerA : line.headerB}`}
+              {`${direction && line && line.headerB && line.headerA ? line.headerA : line.headerB}`}
             </LineText>
           </View>
           <View style={{ paddingHorizontal: 4, alignItems: 'center' }}>
@@ -72,7 +73,7 @@ class DirectionLineView extends Component {
           </View>
           <View style={{ paddingHorizontal: 4 }}>
             <LineText>
-              {`${direction && line ? line.headerB : line.headerA}`}
+              {`${direction && line && line.headerB && line.headerA ? line.headerB : line.headerA}`}
             </LineText>
           </View>
         </View>
@@ -109,7 +110,12 @@ class DirectionLineView extends Component {
 
 DirectionLineView.defaultProps = {
   fetchDirectionLine: this.fetchDirectionLine,
-  directionLine: null,
+  directionLine: PropTypes.shape({
+    Line: PropTypes.shape({
+      headerA: PropTypes.string,
+      headerB: PropTypes.string,
+    }),
+  }),
   navigation: this.navigation,
 
 };

@@ -2,17 +2,12 @@ import React, { Component } from 'react';
 import {
   View,
   FlatList,
+  Platform,
 } from 'react-native';
 import PropTypes from 'prop-types';
 import { withNavigation } from 'react-navigation';
 import ActivityIndicator from '../components/ActivityIndicator/ActivityIndicator';
-import {
-  LineContainer,
-  LineContent,
-  LineText,
-  LineNumber,
-  NumberContent,
-} from './HomeView.style';
+import LineRow from '../components/LineRow.js/LineRow';
 
 const ITEM_HEIGHT = 73;
 
@@ -55,21 +50,12 @@ class HomeView extends Component {
       return null;
     }
 
-    const nameA = item.nameA.split().length === 1 ? item.nameA.trim() : item.nameA;
-
     return (
-      <LineContainer key={`line-${item.line}-${index}`} isEvent={index % 2} onPress={() => navigation.navigate('DirectionLine', { line: item.label })}>
-        <NumberContent>
-          <LineNumber>
-            {item.label}
-          </LineNumber>
-        </NumberContent>
-        <LineContent>
-          <LineText>
-            {`${nameA} - ${item.nameB}`}
-          </LineText>
-        </LineContent>
-      </LineContainer>
+      <LineRow
+        item={item}
+        index={index}
+        navigation={navigation}
+      />
     );
   }
 
@@ -80,12 +66,12 @@ class HomeView extends Component {
       <View style={{ flex: 1, backgroundColor: '#fafbfd' }}>
         {isLoading && (
           <FlatList
-            enableEmptySections
             data={listLines.resultValues}
-            removeClippedSubviews
+            removeClippedSubviews={Platform.OS === 'android'}
             renderItem={this.renderItem}
             keyExtractor={this.keyExtractor}
             initialNumToRender={10}
+            windowSize={8}
             getItemLayout={this.getItemLayout}
           />
         )}

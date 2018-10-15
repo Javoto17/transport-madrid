@@ -32,8 +32,6 @@ class DetailLineView extends Component {
 
   constructor(props) {
     super(props);
-    this.fetchInfoLine = props.fetchInfoLine.bind(this);
-
     this.navigation = props.navigation;
   }
 
