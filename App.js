@@ -2,16 +2,19 @@ import React from 'react';
 import {
   AppLoading,
   Asset,
+  Constants,
 } from 'expo';
 import { Provider } from 'react-redux';
 import PropTypes from 'prop-types';
-
+import { setExpoStatusBarHeight } from 'react-navigation-collapsible';
 import createStore from './src/modules/createStore';
 import AppContainer from './src/AppContainer';
 
 const store = createStore();
 const dev = require('./assets/images/robot-dev.png');
 const prod = require('./assets/images/robot-prod.png');
+
+setExpoStatusBarHeight(Constants.statusBarHeight);
 
 export default class App extends React.Component {
   state = {

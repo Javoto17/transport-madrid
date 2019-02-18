@@ -1,10 +1,10 @@
 import * as t from './actionTypes';
 
-
 const initialState = {
   listLines: {
     resultValues: [],
   },
+  listLinesFiltered: [],
   infoLine: {
     stop: [],
   },
@@ -34,8 +34,22 @@ export default (state = initialState, action) => {
         ...action.payload,
         resultValues: action.payload.resultValues,
       },
+      listLinesFiltered: action.payload.resultValues,
       isLoading: true,
     };
+  case t.FILTER_LINES_BY_CRITERIAL: {
+    const { criterial } = action.payload;
+
+    return {
+      ...state,
+      listLinesFiltered: !!criterial && !!state.listLines.resultValues
+        ? state.listLines.resultValues.filter(el => el.nameA.toLowerCase().trim().includes(criterial.toLowerCase())
+            || el.nameA.toLowerCase().trim().includes(criterial.toLowerCase())
+            || el.label.trim().includes(criterial.toLowerCase()))
+        : state.listLines.resultValues,
+      isLoading: true,
+    };
+  }
   case t.FETCH_INFO_LINE:
     return {
       ...state,

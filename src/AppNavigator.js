@@ -1,6 +1,7 @@
 import {
   createStackNavigator,
   createBottomTabNavigator,
+  createAppContainer,
 } from 'react-navigation';
 import { BottomTabBar } from 'react-navigation-tabs';
 import { PropTypes } from 'prop-types';
@@ -10,6 +11,7 @@ import {
   Easing,
   Animated,
 } from 'react-native';
+
 import HomeViewContainer from './native/Home/HomeViewContainer';
 import DirectionLineContainer from './native/DirectionLine/DirectionViewContainer';
 import DetailLineContainer from './native/DetailLine/DetailLineViewContainer';
@@ -60,7 +62,7 @@ const stackNavigator = createStackNavigator(
     initialRouteName: 'Home',
     transitionConfig,
     cardStyle: { shadowColor: 'transparent' },
-    navigationOptions: () => ({
+    defaultNavigationOptions: {
       headerForceInset: {
         top: 'never',
         bottom: 'never',
@@ -68,16 +70,16 @@ const stackNavigator = createStackNavigator(
       headerTitleStyle: {
         flex: 1,
         fontSize: 24,
+        paddingVertical: 10,
         fontFamily: 'nunito-bold',
-
       },
       headerStyle: {
-        backgroundColor: '#ffffff',
+        backgroundColor: '#fff',
         elevation: 0,
         borderBottomWidth: 0.5,
         borderBottomColor: '#d0d8e8',
       },
-    }),
+    },
   },
 );
 const stackNavigator2 = createStackNavigator(
@@ -94,7 +96,7 @@ const stackNavigator2 = createStackNavigator(
     initialRouteName: 'Favorites',
     transitionConfig,
     cardStyle: { shadowColor: 'transparent' },
-    navigationOptions: () => ({
+    defaultNavigationOptions: {
       headerForceInset: {
         top: 'never',
         bottom: 'never',
@@ -102,6 +104,7 @@ const stackNavigator2 = createStackNavigator(
       headerTitleStyle: {
         flex: 1,
         fontSize: 24,
+        paddingVertical: 10,
         fontFamily: 'nunito-bold',
       },
       headerStyle: {
@@ -110,7 +113,7 @@ const stackNavigator2 = createStackNavigator(
         borderBottomWidth: 0.5,
         borderBottomColor: '#d0d8e8',
       },
-    }),
+    },
   },
 );
 
@@ -125,8 +128,7 @@ const TabIcon = ({ name, tintColor }) => (
   />
 );
 
-
-export default createBottomTabNavigator(
+const AppNavigator = createBottomTabNavigator(
   {
     Home: {
       screen: stackNavigator,
@@ -168,6 +170,8 @@ export default createBottomTabNavigator(
     swipeEnabled: true,
   },
 );
+
+export default createAppContainer(AppNavigator);
 
 TabIcon.propTypes = {
   tintColor: PropTypes.oneOfType([

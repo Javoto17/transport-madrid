@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import Expo from 'expo';
+import { Font } from 'expo';
 import { StatusBar, Platform } from 'react-native';
 import { SafeAreaView } from 'react-navigation';
 import PropTypes from 'prop-types';
@@ -12,6 +12,7 @@ const nunitoLight = require('../assets/fonts/nunito/Nunito-Light.ttf');
 class AppView extends PureComponent {
   constructor(props) {
     super(props);
+
     this.state = {
       fontLoaded: false,
     };
@@ -24,7 +25,7 @@ class AppView extends PureComponent {
   }
 
   async componentDidMount() {
-    await Expo.Font.loadAsync({
+    await Font.loadAsync({
       'nunito-bold': nunitoBold,
       'nunito-regular': nunitoRegular,
       'nunito-light': nunitoLight,
@@ -54,4 +55,5 @@ AppView.defaultProps = {
 AppView.propTypes = {
   loadFavorites: PropTypes.func,
 };
+
 export default AppView;

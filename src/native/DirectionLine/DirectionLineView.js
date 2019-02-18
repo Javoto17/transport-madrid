@@ -11,7 +11,7 @@ import { LineText, DirectionContainer } from './DirectionLineView.style';
 
 class DirectionLineView extends Component {
   static navigationOptions = ({ navigation }) => ({
-    title: 'Direccion',
+    title: 'Dirección',
     headerLeft: (
       <View
         style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}

@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import {
   View,
   TouchableOpacity,
@@ -15,11 +15,10 @@ import { FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons';
 
 import ActivityIndicator from '../components/ActivityIndicator/ActivityIndicator';
 
-
 import { getTime } from '../../utils/Timer';
 import { convertLineNumber } from '../../utils/Stops';
 
-class DetailStopView extends PureComponent {
+class DetailStopView extends Component {
   static navigationOptions = ({ navigation }) => ({
     title: `Parada - ${navigation.getParam('detailStop').stopId}`,
     headerLeft: (
@@ -138,7 +137,7 @@ class DetailStopView extends PureComponent {
 
     const timesStop = Array.isArray(infoStop) ? infoStop : [{ ...infoStop }];
 
-    const myTimes = timesStop.filter(el => parseInt(el.lineId, 10) === parseInt(item.lineId, 10));
+    const myTimes = timesStop.filter(el => el.lineId === item.lineId);
 
     if (myTimes) {
       return (
@@ -178,7 +177,6 @@ class DetailStopView extends PureComponent {
     const { state: { params: { detailStop } } } = navigation;
 
     const linesTime = Array.isArray(detailStop.lineId) ? detailStop.lineId.map(el => Object.assign({}, { lineId: convertLineNumber(el) })) : [{ lineId: convertLineNumber(detailStop.lineId) }];
-
 
     return (
       <ScrollView style={{ flex: 1, backgroundColor: '#fafbfd', position: 'relative' }}>

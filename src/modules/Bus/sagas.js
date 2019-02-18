@@ -80,6 +80,7 @@ function* fetchBusStop({
     const response = yield call(api.fetchBusStop, payload);
     if (response) {
       yield put(actions.fetchBusStopSuccess(response.data));
+      console.log(response);
     }
   } catch (e) {
     console.error(e);

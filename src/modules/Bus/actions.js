@@ -101,3 +101,10 @@ export const loadFavoritesSuccess = payload => ({
   type: t.LOAD_FAVORITES_SUCCESS,
   payload,
 });
+
+export const filterLinesByCriterial = criterial => ({
+  type: t.FILTER_LINES_BY_CRITERIAL,
+  payload: {
+    criterial,
+  },
+});

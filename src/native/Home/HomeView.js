@@ -3,38 +3,100 @@ import {
   View,
   FlatList,
   Platform,
+  Animated,
 } from 'react-native';
 import PropTypes from 'prop-types';
 import { withNavigation } from 'react-navigation';
+
 import ActivityIndicator from '../components/ActivityIndicator/ActivityIndicator';
 import LineRow from '../components/LineRow.js/LineRow';
+import SearchHeader from '../components/SearchHeader/SearchHeader';
+
+const AnimatedFL = Animated.createAnimatedComponent(FlatList);
 
 const ITEM_HEIGHT = 73;
 
 class HomeView extends Component {
-  static navigationOptions = () => ({
-    title: 'Listado de Lineas',
+  static navigationOptions = ({ navigation }) => ({
+    header: <SearchHeader navigation={navigation} title="Listado de Lineas" />,
   });
 
   constructor(props) {
     super(props);
+
+    this.state = {
+      searchValue: '',
+      openSearch: false,
+    };
+
     this.navigation = props.navigation;
   }
 
   componentDidMount() {
     const { fetchListLines } = this.props;
+    const { searchValue, openSearch } = this.state;
 
     fetchListLines();
+
+    this.navigation.setParams({
+      onChangeText: this.onChangeText,
+      searchValue,
+      openSearch,
+      changeHeader: this.changeHeader,
+    });
   }
 
-  shouldComponentUpdate(nextProps) {
-    const { listLines } = this.props;
+  shouldComponentUpdate(nextState, nextProps) {
+    const { listLinesFiltered } = this.props;
+    const { searchValue, openSearch } = this.state;
 
-    if (listLines !== nextProps.listLines) {
+    if (listLinesFiltered !== nextProps.listLinesFiltered) {
+      return true;
+    }
+
+    if (searchValue !== nextState.searchValue) {
+      return true;
+    }
+
+    if (openSearch !== nextState.openSearch) {
       return true;
     }
 
     return false;
+  }
+
+  changeHeader = () => {
+    const { openSearch, searchValue } = this.state;
+    const { navigation, filterLinesByCriterial } = this.props;
+
+    this.setState({
+      openSearch: !openSearch,
+      searchValue: !openSearch ? '' : searchValue,
+    }, () => {
+      navigation.setParams({
+        openSearch: !openSearch,
+        searchValue: !openSearch ? '' : searchValue,
+      });
+
+      if (openSearch) {
+        filterLinesByCriterial(null);
+      }
+    });
+  }
+
+  onChangeText = (searchValue) => {
+    const { navigation, filterLinesByCriterial } = this.props;
+
+    console.log(searchValue);
+
+    this.setState({
+      searchValue,
+    }, () => {
+      filterLinesByCriterial(searchValue);
+      navigation.setParams({
+        searchValue,
+      });
+    });
   }
 
   getItemLayout = (data, index) => (
@@ -60,19 +122,24 @@ class HomeView extends Component {
   }
 
   render() {
-    const { listLines, isLoading } = this.props;
+    const { isLoading, listLinesFiltered, collapsible } = this.props;
+    const { paddingHeight, animatedY, onScroll } = collapsible;
 
     return (
       <View style={{ flex: 1, backgroundColor: '#fafbfd' }}>
         {isLoading && (
-          <FlatList
-            data={listLines.resultValues}
+          <AnimatedFL
+            data={listLinesFiltered}
             removeClippedSubviews={Platform.OS === 'android'}
             renderItem={this.renderItem}
             keyExtractor={this.keyExtractor}
             initialNumToRender={10}
-            windowSize={8}
+            windowSize={10}
             getItemLayout={this.getItemLayout}
+            contentContainerStyle={{ paddingTop: paddingHeight }}
+            scrollIndicatorInsets={{ top: paddingHeight }}
+            onScroll={onScroll}
+            _mustAddThis={animatedY}
           />
         )}
 
@@ -86,27 +153,42 @@ class HomeView extends Component {
   }
 }
 
+// const collapsibleParams = {
+//   iOSCollapsedColor: 'red',
+//   collapsibleComponent: SearchHeader,
+//   collapsibleBackgroundStyle: {
+//     height: 60,
+//     backgroundColor: 'red',
+//     // disableFadeoutInnerComponent: true,
+//   },
+// };
+
 HomeView.defaultProps = {
-  fetchListLines: this.fetchListLines,
+  fetchListLines: () => { },
+  filterLinesByCriterial: () => { },
   isLoading: false,
-  listLines: {
-    resultValues: [],
-  },
+  listLinesFiltered: [],
   navigation: this.navigation,
+  collapsible: {},
 };
 
 HomeView.propTypes = {
   fetchListLines: PropTypes.func,
   isLoading: PropTypes.bool,
-  listLines: PropTypes.shape({
-    resultValues: PropTypes.arrayOf(PropTypes.shape({
+  listLinesFiltered: PropTypes.arrayOf(
+    PropTypes.shape({
       nameA: PropTypes.string,
       nameB: PropTypes.string,
       line: PropTypes.string,
-    })),
-  }),
+    }),
+  ),
   navigation: PropTypes.shape({
     navigate: PropTypes.func,
+  }),
+  filterLinesByCriterial: PropTypes.func,
+  collapsible: PropTypes.shape({
+    paddingHeight: PropTypes.number,
+    scrollY: PropTypes.number,
   }),
 };
 

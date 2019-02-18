@@ -79,7 +79,7 @@ class MyFavoritesView extends Component {
 
   render() {
     const { listFavorites } = this.props;
-    console.log(listFavorites);
+
     return (
       <View style={{ flex: 1, backgroundColor: '#fafbfd' }}>
         {listFavorites && (

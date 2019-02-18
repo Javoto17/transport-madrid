@@ -5,13 +5,12 @@ import {
 import {
   composeWithDevTools,
 } from 'redux-devtools-extension';
+
 import createSagaMiddleware from 'redux-saga';
-// reducer
 import appReducer from './rootReducer';
 import rootSaga from './rootSaga';
-// rootSaga
-const sagaMiddleware = createSagaMiddleware();
 
+const sagaMiddleware = createSagaMiddleware();
 const middlewares = [sagaMiddleware];
 
 const rootReducer = (state, action) => (
