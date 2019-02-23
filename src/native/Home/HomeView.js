@@ -127,7 +127,7 @@ class HomeView extends Component {
 
     return (
       <View style={{ flex: 1, backgroundColor: '#fafbfd' }}>
-        {isLoading && (
+        {isLoading ? (
           <AnimatedFL
             data={listLinesFiltered}
             removeClippedSubviews={Platform.OS === 'android'}
@@ -136,14 +136,12 @@ class HomeView extends Component {
             initialNumToRender={10}
             windowSize={10}
             getItemLayout={this.getItemLayout}
-            contentContainerStyle={{ paddingTop: paddingHeight }}
-            scrollIndicatorInsets={{ top: paddingHeight }}
-            onScroll={onScroll}
-            _mustAddThis={animatedY}
+          // contentContainerStyle={{ paddingTop: paddingHeight }}
+          // scrollIndicatorInsets={{ top: paddingHeight }}
+          // onScroll={onScroll}
+          // _mustAddThis={animatedY}
           />
-        )}
-
-        {!isLoading && (
+        ) : (
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
             <ActivityIndicator />
           </View>

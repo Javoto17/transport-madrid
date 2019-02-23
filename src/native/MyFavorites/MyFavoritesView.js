@@ -72,7 +72,7 @@ class MyFavoritesView extends Component {
   renderEmpty = () => (
     <ViewEmpty>
       <TextEmpty numberOfLines={2} style={{ fontFamily: 'nunito-regular' }}>
-        {'Todavia no has añadido ninguna parada'}
+        {'Todavía no has añadido ninguna parada'}
       </TextEmpty>
     </ViewEmpty>
   )
