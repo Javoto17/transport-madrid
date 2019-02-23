@@ -12,7 +12,7 @@ import StopRow from '../components/StopRow/StopRow';
 
 class DetailLineView extends Component {
   static navigationOptions = ({ navigation }) => ({
-    title: `Linea ${navigation.getParam('lineNumber')}`,
+    title: `Línea ${navigation.getParam('lineNumber')}`,
     headerLeft: (
       <View
         style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}

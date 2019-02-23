@@ -18,7 +18,7 @@ const ITEM_HEIGHT = 73;
 
 class HomeView extends Component {
   static navigationOptions = ({ navigation }) => ({
-    header: <SearchHeader navigation={navigation} title="Listado de Lineas" />,
+    header: <SearchHeader navigation={navigation} title="Listado de Líneas" />,
   });
 
   constructor(props) {
@@ -87,7 +87,7 @@ class HomeView extends Component {
   onChangeText = (searchValue) => {
     const { navigation, filterLinesByCriterial } = this.props;
 
-    console.log(searchValue);
+    // console.log(searchValue);
 
     this.setState({
       searchValue,

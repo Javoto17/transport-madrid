@@ -81,7 +81,7 @@ export const saveFavorites = async (payload) => {
   try {
     await AsyncStorage.setItem('FAVORITES', JSON.stringify(payload));
   } catch (error) {
-    console.log(error);
+    // console.log(error);
   }
 };
 
@@ -90,7 +90,7 @@ export const getFavorites = async () => {
     const listFavorites = await AsyncStorage.getItem('FAVORITES');
     return listFavorites !== null && JSON.parse(listFavorites) && Array.isArray(JSON.parse(listFavorites)) ? JSON.parse(listFavorites) : [];
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     return false;
   }
 };

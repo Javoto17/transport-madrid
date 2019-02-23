@@ -59,7 +59,7 @@ class StopRow extends PureComponent {
             {item.postalAddress}
           </SubTextBusStop>
           <SubTextBusStop numberOfLines={2}>
-            {Array.isArray(lines) ? `Lineas: ${lines.join(' ')}` : `Linea: ${lines}`}
+            {Array.isArray(lines) ? `Líneas: ${lines.join(' ')}` : `Línea: ${lines}`}
           </SubTextBusStop>
         </BusStopContent>
         <BusStopContentNumber>

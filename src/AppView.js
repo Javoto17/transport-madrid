@@ -3,6 +3,8 @@ import { Font } from 'expo';
 import { StatusBar, Platform } from 'react-native';
 import { SafeAreaView } from 'react-navigation';
 import PropTypes from 'prop-types';
+import Sentry from 'sentry-expo';
+
 import AppNavigator from './AppNavigator';
 
 const nunitoBold = require('../assets/fonts/nunito/Nunito-Bold.ttf');
@@ -31,6 +33,8 @@ class AppView extends PureComponent {
       'nunito-light': nunitoLight,
 
     });
+    Sentry.enableInExpoDevelopment = false;
+    Sentry.config('https://a8796fb88fc24feaaa9df5ed08b92530@sentry.io/1400694').install();
 
     this.setState({ fontLoaded: true });
   }

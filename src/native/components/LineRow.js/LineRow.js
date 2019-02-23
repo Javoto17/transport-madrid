@@ -23,7 +23,7 @@ const LineRow = ({
       </NumberContent>
       <LineContent>
         <LineText numbersOfLine={2}>
-          {`${nameA} - ${item.nameB}`}
+          {`${nameA} - ${item.nameB.trim()}`}
         </LineText>
       </LineContent>
     </LineContainer>

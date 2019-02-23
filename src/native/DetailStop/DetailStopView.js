@@ -1,19 +1,21 @@
 import React, { Component } from 'react';
 import {
   View,
-  TouchableOpacity,
   Text,
   FlatList,
   Linking,
   Platform,
   ScrollView,
+  RefreshControl,
 } from 'react-native';
 import PropTypes from 'prop-types';
 import { MapView } from 'expo';
 import { withNavigation } from 'react-navigation';
-import { FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons';
 
 import ActivityIndicator from '../components/ActivityIndicator/ActivityIndicator';
+import BackHeader from '../components/BackHeader/BackHeader';
+import FavoriteHeader from '../components/FavoriteHeader/FavoriteHeader';
+import UpdateHeader from '../components/UpdateHeader/UpdateHeader';
 
 import { getTime } from '../../utils/Timer';
 import { convertLineNumber } from '../../utils/Stops';
@@ -21,59 +23,29 @@ import { convertLineNumber } from '../../utils/Stops';
 class DetailStopView extends Component {
   static navigationOptions = ({ navigation }) => ({
     title: `Parada - ${navigation.getParam('detailStop').stopId}`,
-    headerLeft: (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={{ alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16 }}
-        >
-          <FontAwesome
-            name="angle-left"
-            style={{ color: '#b0b7c4', fontSize: 30 }}
-          />
-        </TouchableOpacity>
-      </View>
-    ),
+    headerLeft: <BackHeader navigation={navigation} />,
     headerRight: (
-      <View style={{
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexDirection: 'row',
-      }}
+      <View
+        style={{
+          flex: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexDirection: 'row',
+        }}
       >
-        <TouchableOpacity
-          onPress={!navigation.getParam('detailStop').isFavorite ? navigation.getParam('addFavorite') : navigation.getParam('deleteFavorite')}
-          style={{ alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16 }}
-        >
-          <FontAwesome
-            name="star"
-            color={navigation.getParam('detailStop').isFavorite ? '#027bff' : '#99a2b4'}
-            size={20}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={navigation.getParam('fetchBusStop')}
-          style={{
-            alignItems: 'center',
-            justifyContent: 'center',
-            paddingHorizontal: 16,
-            paddingTop: 4,
-          }}
-        >
-          <MaterialCommunityIcons
-            name="reload"
-            color="#99a2b4"
-            size={24}
-          />
-        </TouchableOpacity>
+        <FavoriteHeader navigation={navigation} />
+        <UpdateHeader navigation={navigation} />
       </View>
     ),
   });
 
   componentDidMount() {
     const { fetchBusStop, navigation } = this.props;
-    const { state: { params: { detailStop } } } = navigation;
+    const {
+      state: {
+        params: { detailStop },
+      },
+    } = navigation;
 
     navigation.setParams({
       addFavorite: this.addFavorite,
@@ -86,19 +58,34 @@ class DetailStopView extends Component {
 
   componentWillReceiveProps(nextProps) {
     const { navigation, detailStop } = this.props;
-    console.log(nextProps);
 
-    if (detailStop.isFavorite !== nextProps.detailStop.isFavorite && nextProps.detailStop.isFavorite) {
-      navigation.setParams({ detailStop: nextProps.detailStop, isFavorite: true });
+    if (
+      detailStop.isFavorite !== nextProps.detailStop.isFavorite
+      && nextProps.detailStop.isFavorite
+    ) {
+      navigation.setParams({
+        detailStop: nextProps.detailStop,
+        isFavorite: true,
+      });
     }
-    if (detailStop.isFavorite !== nextProps.detailStop.isFavorite && !nextProps.detailStop.isFavorite) {
-      navigation.setParams({ detailStop: nextProps.detailStop, isFavorite: false });
+    if (
+      detailStop.isFavorite !== nextProps.detailStop.isFavorite
+      && !nextProps.detailStop.isFavorite
+    ) {
+      navigation.setParams({
+        detailStop: nextProps.detailStop,
+        isFavorite: false,
+      });
     }
   }
 
   addFavorite = () => {
     const { addFavorite, navigation } = this.props;
-    const { state: { params: { detailStop } } } = navigation;
+    const {
+      state: {
+        params: { detailStop },
+      },
+    } = navigation;
 
     addFavorite(detailStop);
   };
@@ -107,16 +94,23 @@ class DetailStopView extends Component {
 
   deleteFavorite = () => {
     const { deleteFavorite, navigation } = this.props;
-    const { state: { params: { detailStop } } } = navigation;
+    const {
+      state: {
+        params: { detailStop },
+      },
+    } = navigation;
 
     deleteFavorite(detailStop);
-  }
+  };
 
   _handlePressDirections = () => {
     const { navigation } = this.props;
     const item = navigation.getParam('detailStop');
 
-    const scheme = Platform.select({ ios: 'maps:0,0?q=', android: 'geo:0,0?q=' });
+    const scheme = Platform.select({
+      ios: 'maps:0,0?q=',
+      android: 'geo:0,0?q=',
+    });
     const latLng = `${item.latitude},${item.longitude}`;
     const label = `${item.postalAddress}`;
     const url = Platform.select({
@@ -125,7 +119,7 @@ class DetailStopView extends Component {
     });
 
     Linking.openURL(url);
-  }
+  };
 
   _renderItem = ({ item }) => {
     const { infoStop } = this.props;
@@ -133,7 +127,6 @@ class DetailStopView extends Component {
     if (!item) {
       return null;
     }
-
 
     const timesStop = Array.isArray(infoStop) ? infoStop : [{ ...infoStop }];
 
@@ -143,25 +136,39 @@ class DetailStopView extends Component {
       return (
         <View style={{ flex: 1, flexDirection: 'row', paddingBottom: 4 }}>
           <View style={{ flex: 0.33, alignItems: 'center' }}>
-            <Text style={{ fontFamily: 'nunito-regular', fontSize: 18 }}>{`${item.lineId}`}</Text>
+            <Text style={{ fontFamily: 'nunito-regular', fontSize: 18 }}>
+              {`${item.lineId}`}
+            </Text>
           </View>
           <View style={{ flex: 0.33, alignItems: 'center' }}>
-            {myTimes[0] && myTimes[0].busTimeLeft && (<Text style={{ fontFamily: 'nunito-regular', fontSize: 18 }}>{`${getTime(myTimes[0].busTimeLeft)}`}</Text>)}
+            {!!myTimes[0] && !!myTimes[0].busTimeLeft && (
+              <Text
+                style={{ fontFamily: 'nunito-light', fontSize: 18 }}
+              >
+                {`${getTime(myTimes[0].busTimeLeft)}`}
+              </Text>
+            )}
           </View>
           <View style={{ flex: 0.33, alignItems: 'center' }}>
-            {myTimes[1] && myTimes[1].busTimeLeft && (<Text style={{ fontFamily: 'nunito-regular', fontSize: 18 }}>{`${getTime(myTimes[1].busTimeLeft)}`}</Text>)}
+            {!!myTimes[1] && !!myTimes[1].busTimeLeft && (
+              <Text
+                style={{ fontFamily: 'nunito-light', fontSize: 18 }}
+              >
+                {`${getTime(myTimes[1].busTimeLeft)}`}
+              </Text>
+            )}
           </View>
         </View>
       );
     }
 
     return null;
-  }
+  };
 
   renderHeader = () => (
     <View style={{ flex: 1, flexDirection: 'row' }}>
       <View style={{ flex: 0.33, alignItems: 'center', paddingVertical: 2 }}>
-        <Text style={{ fontFamily: 'nunito-bold', fontSize: 24 }}>Linea</Text>
+        <Text style={{ fontFamily: 'nunito-bold', fontSize: 24 }}>Línea</Text>
       </View>
       <View style={{ flex: 0.33, alignItems: 'center', paddingVertical: 2 }}>
         <Text style={{ fontFamily: 'nunito-bold', fontSize: 24 }}>Primero</Text>
@@ -174,13 +181,23 @@ class DetailStopView extends Component {
 
   render() {
     const { navigation, infoStop, loadingArrives } = this.props;
-    const { state: { params: { detailStop } } } = navigation;
+    const {
+      state: {
+        params: { detailStop },
+      },
+    } = navigation;
 
-    const linesTime = Array.isArray(detailStop.lineId) ? detailStop.lineId.map(el => Object.assign({}, { lineId: convertLineNumber(el) })) : [{ lineId: convertLineNumber(detailStop.lineId) }];
+    const linesTime = Array.isArray(detailStop.lineId)
+      ? detailStop.lineId.map(el => Object.assign({}, { lineId: convertLineNumber(el) }))
+      : [{ lineId: convertLineNumber(detailStop.lineId) }];
 
     return (
-      <ScrollView style={{ flex: 1, backgroundColor: '#fafbfd', position: 'relative' }}>
-        <View style={{ flex: 1, backgroundColor: '#fafbfd', position: 'relative' }}>
+      <ScrollView
+        style={{ flex: 1, backgroundColor: '#fafbfd', position: 'relative' }}
+      >
+        <View
+          style={{ flex: 1, backgroundColor: '#fafbfd', position: 'relative' }}
+        >
           <View
             style={{
               backgroundColor: '#fff',
@@ -195,17 +212,35 @@ class DetailStopView extends Component {
                 paddingVertical: 8,
               }}
             >
-              <Text style={{ fontFamily: 'nunito-bold', fontSize: 16, color: 'black' }}>
+              <Text
+                style={{
+                  fontFamily: 'nunito-bold',
+                  fontSize: 16,
+                  color: 'black',
+                }}
+              >
                 {`PARADA Nº ${detailStop.stopId}`}
               </Text>
-              <Text style={{ fontFamily: 'nunito-regular', fontSize: 16, color: '#4c4c4c' }}>
+              <Text
+                style={{
+                  fontFamily: 'nunito-light',
+                  fontSize: 16,
+                  color: '#4c4c4c',
+                }}
+              >
                 {detailStop.name}
               </Text>
-              <Text onPress={this._handlePressDirections} style={{ fontFamily: 'nunito-regular', fontSize: 14, color: '#4c4c4c' }}>
+              <Text
+                onPress={this._handlePressDirections}
+                style={{
+                  fontFamily: 'nunito-bold',
+                  fontSize: 14,
+                  color: '#4c4c4c',
+                }}
+              >
                 {detailStop.postalAddress}
               </Text>
             </View>
-
           </View>
           <View
             style={{
@@ -228,7 +263,13 @@ class DetailStopView extends Component {
                 />
               )}
               {(!infoStop || !linesTime || loadingArrives) && (
-                <View style={{ justifyContent: 'center', alignItems: 'center', paddingVertical: 16 }}>
+                <View
+                  style={{
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    paddingVertical: 16,
+                  }}
+                >
                   <ActivityIndicator />
                 </View>
               )}
@@ -249,12 +290,12 @@ class DetailStopView extends Component {
               longitudeDelta: 0.0021,
             }}
           >
-            <MapView.Marker coordinate={{
-              latitude: detailStop.latitude,
-              longitude: detailStop.longitude,
-            }}
+            <MapView.Marker
+              coordinate={{
+                latitude: detailStop.latitude,
+                longitude: detailStop.longitude,
+              }}
             />
-
           </MapView>
         </View>
       </ScrollView>
@@ -264,10 +305,12 @@ class DetailStopView extends Component {
 
 DetailStopView.defaultProps = {
   fetchBusStop: this.fetchBusStop,
-  infoStop: PropTypes.arrayOf(PropTypes.shape({
-    lineId: PropTypes.string,
-    busTimeLeft: PropTypes.number,
-  })),
+  infoStop: PropTypes.arrayOf(
+    PropTypes.shape({
+      lineId: PropTypes.string,
+      busTimeLeft: PropTypes.number,
+    }),
+  ),
   navigation: this.navigation,
   addFavorite: PropTypes.func,
   deleteFavorite: PropTypes.func,
@@ -287,10 +330,12 @@ DetailStopView.propTypes = {
     navigate: PropTypes.func,
   }),
   infoStop: PropTypes.oneOfType([
-    PropTypes.arrayOf(PropTypes.shape({
-      lineId: PropTypes.string,
-      busTimeLeft: PropTypes.number,
-    })),
+    PropTypes.arrayOf(
+      PropTypes.shape({
+        lineId: PropTypes.string,
+        busTimeLeft: PropTypes.number,
+      }),
+    ),
     PropTypes.shape({
       lineId: PropTypes.string,
       busTimeLeft: PropTypes.number,

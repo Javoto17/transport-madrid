@@ -10,6 +10,7 @@ import React from 'react';
 import {
   Easing,
   Animated,
+  Platform,
 } from 'react-native';
 
 import HomeViewContainer from './native/Home/HomeViewContainer';
@@ -42,6 +43,26 @@ const transitionConfig = () => ({
   },
 });
 
+
+const defaultNavigationOptions = {
+  headerForceInset: {
+    top: 'never',
+    bottom: 'never',
+  },
+  headerTitleStyle: {
+    flex: 1,
+    fontSize: 24,
+    marginVertical: Platform.select({ ios: 6, android: 4 }),
+    fontFamily: 'nunito-bold',
+  },
+  headerStyle: {
+    backgroundColor: '#ffffff',
+    elevation: 0,
+    borderBottomWidth: 0.5,
+    borderBottomColor: '#d0d8e8',
+  },
+};
+
 const stackNavigator = createStackNavigator(
   {
     Home: {
@@ -62,24 +83,7 @@ const stackNavigator = createStackNavigator(
     initialRouteName: 'Home',
     transitionConfig,
     cardStyle: { shadowColor: 'transparent' },
-    defaultNavigationOptions: {
-      headerForceInset: {
-        top: 'never',
-        bottom: 'never',
-      },
-      headerTitleStyle: {
-        flex: 1,
-        fontSize: 24,
-        paddingVertical: 10,
-        fontFamily: 'nunito-bold',
-      },
-      headerStyle: {
-        backgroundColor: '#fff',
-        elevation: 0,
-        borderBottomWidth: 0.5,
-        borderBottomColor: '#d0d8e8',
-      },
-    },
+    defaultNavigationOptions,
   },
 );
 const stackNavigator2 = createStackNavigator(
@@ -96,24 +100,7 @@ const stackNavigator2 = createStackNavigator(
     initialRouteName: 'Favorites',
     transitionConfig,
     cardStyle: { shadowColor: 'transparent' },
-    defaultNavigationOptions: {
-      headerForceInset: {
-        top: 'never',
-        bottom: 'never',
-      },
-      headerTitleStyle: {
-        flex: 1,
-        fontSize: 24,
-        paddingVertical: 10,
-        fontFamily: 'nunito-bold',
-      },
-      headerStyle: {
-        backgroundColor: '#ffffff',
-        elevation: 0,
-        borderBottomWidth: 0.5,
-        borderBottomColor: '#d0d8e8',
-      },
-    },
+    defaultNavigationOptions,
   },
 );
 
@@ -133,7 +120,7 @@ const AppNavigator = createBottomTabNavigator(
     Home: {
       screen: stackNavigator,
       navigationOptions: {
-        tabBarLabel: 'Lineas',
+        tabBarLabel: 'Líneas',
         tabBarIcon: props => TabIcon({ name: 'list', ...props }),
       },
     },
@@ -151,7 +138,7 @@ const AppNavigator = createBottomTabNavigator(
         {...props}
         style={{
           backgroundColor: '#ffffff',
-          borderTopColor: '#99a2b4',
+          borderTopColor: '#d0d8e8',
         }}
       />
     ),

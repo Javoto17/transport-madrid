@@ -49,7 +49,7 @@ const SearchHeader = ({ navigation, title }) => {
             }}
             onChangeText={navigation.getParam('onChangeText')}
             value={navigation.getParam('searchValue')}
-            placeholder="Linea, Origen, Destino"
+            placeholder="Línea, Origen, Destino"
             placeholderTextColor="#d0d8e8"
             autoFocus
             maxLength={50}

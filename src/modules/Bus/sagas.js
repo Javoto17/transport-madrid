@@ -7,11 +7,7 @@ import {
   select,
 } from 'redux-saga/effects';
 import * as actions from './actions';
-
-// actionTypes
 import * as t from './actionTypes';
-
-// api
 import * as api from './api';
 
 const getListFavorites = state => state.bus.listFavorites;
@@ -21,7 +17,7 @@ function* fetchListLines() {
     const response = yield call(api.getListLines);
     yield put(actions.fetchListLinesSuccess(response.data));
   } catch (e) {
-    console.error(e);
+    // console.error(e);
   }
 }
 
@@ -30,14 +26,11 @@ function* fetchInfoLine({
 }) {
   try {
     const response = yield call(api.getRoutesLine, payload);
-
     yield put(actions.getFavorites());
-
-    console.log(response);
-
+    // console.log(response);
     yield put(actions.fetchInfoLineSuccess(response.data));
   } catch (e) {
-    console.error(e);
+    // console.error(e);
   }
 }
 
@@ -48,7 +41,7 @@ function* fetchDirectionLine({
     const response = yield call(api.getDirectionLine, payload);
     yield put(actions.fetchDirectionLineSuccess(response.data));
   } catch (e) {
-    console.error(e);
+    // console.error(e);
   }
 }
 
@@ -58,7 +51,7 @@ function* saveFavorites() {
     const response = yield call(api.saveFavorites, listFavorites);
     yield put(actions.saveFavoriteSuccess(response));
   } catch (e) {
-    console.error(e);
+    // console.error(e);
   }
 }
 
@@ -69,7 +62,7 @@ function* loadFavorites() {
       yield put(actions.getFavoriteSuccess(response));
     }
   } catch (e) {
-    console.error(e);
+    // console.error(e);
   }
 }
 
@@ -80,10 +73,10 @@ function* fetchBusStop({
     const response = yield call(api.fetchBusStop, payload);
     if (response) {
       yield put(actions.fetchBusStopSuccess(response.data));
-      console.log(response);
+      // console.log(response);
     }
   } catch (e) {
-    console.error(e);
+    // console.error(e);
   }
 }
 

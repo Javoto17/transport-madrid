@@ -11,7 +11,7 @@ const initialState = {
   directionLine: null,
   saveFavorite: false,
   listFavorites: [],
-  infoStop: null,
+  infoStop: [],
   isLoading: false,
   loadingArrives: false,
   detailStop: {
@@ -127,7 +127,7 @@ export default (state = initialState, action) => {
   case t.FETCH_BUS_STOP:
     return {
       ...state,
-      infoStop: [],
+      infoStop: state.infoStop,
       loadingArrives: true,
     };
   case t.FETCH_BUS_STOP_SUCCESS: {

@@ -62,11 +62,11 @@ export const fetchBusStop = idStop => ({
     idStop,
   },
 });
+
 export const fetchBusStopSuccess = payload => ({
   type: t.FETCH_BUS_STOP_SUCCESS,
   payload,
 });
-
 
 export const addFavorite = item => ({
   type: t.ADD_FAVORITE,
