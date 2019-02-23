@@ -295,6 +295,7 @@ class DetailStopView extends Component {
                 latitude: detailStop.latitude,
                 longitude: detailStop.longitude,
               }}
+              onPress={this._handlePressDirections}
             />
           </MapView>
         </View>
