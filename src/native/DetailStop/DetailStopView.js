@@ -6,7 +6,6 @@ import {
   Linking,
   Platform,
   ScrollView,
-  RefreshControl,
 } from 'react-native';
 import PropTypes from 'prop-types';
 import { MapView } from 'expo';
@@ -289,6 +288,7 @@ class DetailStopView extends Component {
               latitudeDelta: 0.0021,
               longitudeDelta: 0.0021,
             }}
+            scrollEnabled={false}
           >
             <MapView.Marker
               coordinate={{
