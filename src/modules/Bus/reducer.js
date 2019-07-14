@@ -2,20 +2,23 @@ import * as t from './actionTypes';
 
 const initialState = {
   listLines: {
-    resultValues: [],
+    data: [],
   },
+  isLogin: false,
   listLinesFiltered: [],
   infoLine: {
-    stop: [],
+    stops: [],
   },
   directionLine: null,
   saveFavorite: false,
   listFavorites: [],
-  infoStop: [],
+  infoStop: {
+    detail: {},
+    times: [],
+  },
   isLoading: false,
   loadingArrives: false,
-  detailStop: {
-  },
+  detailStop: {},
 };
 
 export default (state = initialState, action) => {
@@ -24,7 +27,7 @@ export default (state = initialState, action) => {
     return {
       ...state,
       listLines: {
-        resultValues: [],
+        data: [],
       },
     };
   case t.FETCH_LIST_LINES_SUCCESS:
@@ -32,9 +35,9 @@ export default (state = initialState, action) => {
       ...state,
       listLines: {
         ...action.payload,
-        resultValues: action.payload.resultValues,
+        data: action.payload.data,
       },
-      listLinesFiltered: action.payload.resultValues,
+      listLinesFiltered: action.payload.data,
       isLoading: true,
     };
   case t.FILTER_LINES_BY_CRITERIAL: {
@@ -42,11 +45,23 @@ export default (state = initialState, action) => {
 
     return {
       ...state,
-      listLinesFiltered: !!criterial && !!state.listLines.resultValues
-        ? state.listLines.resultValues.filter(el => el.nameA.toLowerCase().trim().includes(criterial.toLowerCase())
-            || el.nameA.toLowerCase().trim().includes(criterial.toLowerCase())
-            || el.label.trim().includes(criterial.toLowerCase()))
-        : state.listLines.resultValues,
+      listLinesFiltered:
+          !!criterial && !!state.listLines.data
+            ? state.listLines.data.filter(el => (
+              el.nameA
+                .toLowerCase()
+                .trim()
+                .includes(criterial.toLowerCase())
+                  || el.nameA
+                    .toLowerCase()
+                    .trim()
+                    .includes(criterial.toLowerCase())
+                  || el.label
+                    .toLowerCase()
+                    .trim()
+                    .includes(criterial.toLowerCase())
+            ))
+            : state.listLines.data,
       isLoading: true,
     };
   }
@@ -54,15 +69,21 @@ export default (state = initialState, action) => {
     return {
       ...state,
       infoLine: {
-        stop: [],
+        stops: [],
       },
     };
   case t.FETCH_INFO_LINE_SUCCESS:
     return {
       ...state,
       infoLine: {
-        ...action.payload,
-        stop: Array.isArray(action.payload.stop) ? action.payload.stop.map(el => Object.assign({}, el, { isFavorite: state.listFavorites.some(favorite => favorite.stopId === el.stopId) })) : [],
+        ...action.payload.data[0],
+        stops: Array.isArray(action.payload.data[0].stops)
+          ? action.payload.data[0].stops.map(el => Object.assign({}, el, {
+            isFavorite: state.listFavorites.some(
+              favorite => favorite.stop === el.stop,
+            ),
+          }))
+          : [],
       },
     };
   case t.FETCH_DIRECTION_LINE:
@@ -73,7 +94,7 @@ export default (state = initialState, action) => {
   case t.FETCH_DIRECTION_LINE_SUCCESS:
     return {
       ...state,
-      directionLine: action.payload,
+      directionLine: action.payload.data[0],
     };
   case t.SAVE_FAVORITE:
     return {
@@ -104,9 +125,9 @@ export default (state = initialState, action) => {
       ],
       infoLine: {
         ...state.infoLine,
-        stop: state.infoLine.stop.map(el => (
-          el.stopId === action.payload.stopId ? { ...el, isFavorite: !el.isFavorite } : el
-        )),
+        stops: state.infoLine.stops.map(el => (el.stop === action.payload.stop
+          ? { ...el, isFavorite: !el.isFavorite }
+          : el)),
       },
       detailStop: { ...action.payload, isFavorite: true },
     };
@@ -114,27 +135,60 @@ export default (state = initialState, action) => {
     return {
       ...state,
       listFavorites: [
-        ...state.listFavorites.filter(item => item.stopId !== action.payload.detailStop.stopId),
+        ...state.listFavorites.filter(
+          item => item.stop !== action.payload.detailStop.stop,
+        ),
       ],
       infoLine: {
         ...state.infoLine,
-        stop: state.infoLine.stop.map(el => (
-          el.stopId === action.payload.detailStop.stopId ? { ...el, isFavorite: !el.isFavorite } : el
-        )),
+        stops: state.infoLine.stops.map(el => (el.stop === action.payload.detailStop.stop
+          ? { ...el, isFavorite: !el.isFavorite }
+          : el)),
       },
       detailStop: { ...action.payload.detailStop, isFavorite: false },
     };
-  case t.FETCH_BUS_STOP:
+  case t.FETCH_BUS_STOP_TIMES:
     return {
       ...state,
       infoStop: state.infoStop,
       loadingArrives: true,
     };
+  case t.FETCH_BUS_STOP_TIMES_SUCCESS: {
+    return {
+      ...state,
+      infoStop: {
+        ...state.infoStop,
+        times:
+            action.payload.data[0].Arrive && action.payload.data[0].Arrive
+              ? action.payload.data[0].Arrive
+              : [],
+      },
+      loadingArrives: false,
+    };
+  }
+  case t.FETCH_BUS_STOP:
+    return {
+      ...state,
+      infoStop: state.infoStop,
+      isLoading: false,
+      loadingArrives: true,
+    };
   case t.FETCH_BUS_STOP_SUCCESS: {
     return {
       ...state,
-      infoStop: action.payload.arrives && action.payload.arrives ? action.payload.arrives : [],
-      loadingArrives: false,
+      infoStop: {
+        ...state.infoStop,
+        detail: action.payload.detail.data,
+      },
+      isLoading: true,
+      // loadingArrives: true,
+    };
+  }
+  case t.FETCH_BUS_STOP_ERROR: {
+    return {
+      ...state,
+      infoStop: state.infoStop,
+      isLoading: true,
     };
   }
   case t.LOAD_FAVORITES:
@@ -146,6 +200,16 @@ export default (state = initialState, action) => {
     return {
       ...state,
       listFavorites: action.payload,
+    };
+  case t.LOGIN_EMT:
+    return {
+      ...state,
+      isLogin: false,
+    };
+  case t.LOGIN_EMT_SUCCESS:
+    return {
+      ...state,
+      isLogin: true,
     };
   default:
     return state;

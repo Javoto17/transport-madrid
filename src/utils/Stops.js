@@ -1,4 +1,6 @@
-export const convertLineNumber = (numberLine) => {
+export const convertLineNumber = (item) => {
+  const numberLine = item && item.line ? item.line : item;
+
   if (numberLine === 68) {
     return 'C1';
   }

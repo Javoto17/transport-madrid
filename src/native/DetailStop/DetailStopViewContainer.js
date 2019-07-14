@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 import DetailStopView from './DetailStopView';
 
-import { fetchBusStop, addFavorite, deleteFavorite } from '../../modules/Bus/actions';
+import { fetchBusStopTimes, addFavorite, deleteFavorite } from '../../modules/Bus/actions';
 
 export default connect(
   state => ({
@@ -11,7 +11,7 @@ export default connect(
     detailStop: state.bus.detailStop,
     loadingArrives: state.bus.loadingArrives,
   }), {
-    fetchBusStop,
+    fetchBusStopTimes,
     addFavorite,
     deleteFavorite,
   },

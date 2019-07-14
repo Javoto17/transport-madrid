@@ -1,9 +1,5 @@
 import React, { Component } from 'react';
-import {
-  View,
-  TouchableOpacity,
-  FlatList,
-} from 'react-native';
+import { View, TouchableOpacity, FlatList } from 'react-native';
 import PropTypes from 'prop-types';
 import { withNavigation } from 'react-navigation';
 import { FontAwesome } from '@expo/vector-icons';
@@ -14,12 +10,14 @@ class DetailLineView extends Component {
   static navigationOptions = ({ navigation }) => ({
     title: `Línea ${navigation.getParam('lineNumber')}`,
     headerLeft: (
-      <View
-        style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
-      >
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
         <TouchableOpacity
           onPress={() => navigation.goBack()}
-          style={{ alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16 }}
+          style={{
+            alignItems: 'center',
+            justifyContent: 'center',
+            paddingHorizontal: 16,
+          }}
         >
           <FontAwesome
             name="angle-left"
@@ -37,7 +35,10 @@ class DetailLineView extends Component {
 
   componentDidMount() {
     const { fetchInfoLine, navigation } = this.props;
-    fetchInfoLine(navigation.getParam('lineNumber'), navigation.getParam('directionLine'));
+    fetchInfoLine(
+      navigation.getParam('lineNumber'),
+      navigation.getParam('directionLine'),
+    );
   }
 
   addFavorite = (item) => {
@@ -46,13 +47,13 @@ class DetailLineView extends Component {
     addFavorite(item);
   };
 
-  keyExtractor = item => `line-${item.stopId}`;
+  keyExtractor = item => `line-${item.pmv || item.stop}`;
 
   deleteFavorite = (item) => {
     const { deleteFavorite } = this.props;
 
     deleteFavorite(item);
-  }
+  };
 
   renderItem = ({ item, index }) => {
     const { navigation } = this.props;
@@ -71,22 +72,24 @@ class DetailLineView extends Component {
         isFavorite={item.isFavorite}
       />
     );
-  }
+  };
 
   render() {
     const { infoLine } = this.props;
 
     return (
       <View style={{ flex: 1, backgroundColor: '#fafbfd' }}>
-        {infoLine.stop && infoLine.stop.length > 0 && (
+        {infoLine.stops && infoLine.stops.length > 0 && (
           <FlatList
-            data={infoLine.stop}
+            data={infoLine.stops}
             renderItem={this.renderItem}
             keyExtractor={this.keyExtractor}
           />
         )}
-        {infoLine.stop.length === 0 && (
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        {infoLine.stops.length === 0 && (
+          <View
+            style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
+          >
             <ActivityIndicator />
           </View>
         )}
@@ -108,17 +111,19 @@ DetailLineView.defaultProps = {
 DetailLineView.propTypes = {
   fetchInfoLine: PropTypes.func,
   infoLine: PropTypes.shape({
-    stop: PropTypes.arrayOf(PropTypes.shape({
-      stopId: PropTypes.string,
-      name: PropTypes.string,
-      pmv: PropTypes.number,
-      postalAddress: PropTypes.string,
-      isFavorite: PropTypes.bool,
-      lineId: PropTypes.oneOfType([
-        PropTypes.arrayOf(PropTypes.string),
-        PropTypes.string,
-      ]),
-    })),
+    stops: PropTypes.arrayOf(
+      PropTypes.shape({
+        stop: PropTypes.string,
+        name: PropTypes.string,
+        pmv: PropTypes.string,
+        postalAddress: PropTypes.string,
+        isFavorite: PropTypes.bool,
+        lineId: PropTypes.oneOfType([
+          PropTypes.arrayOf(PropTypes.string),
+          PropTypes.string,
+        ]),
+      }),
+    ),
   }),
   navigation: PropTypes.shape({
     navigate: PropTypes.func,

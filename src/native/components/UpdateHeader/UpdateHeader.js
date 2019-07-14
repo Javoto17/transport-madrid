@@ -5,7 +5,7 @@ import { TouchableOpacity, Platform } from 'react-native';
 
 const UpdateHeader = ({ navigation }) => (
   <TouchableOpacity
-    onPress={navigation.getParam('fetchBusStop')}
+    onPress={navigation.getParam('fetchBusStopTimes')}
     style={{
       alignItems: 'center',
       justifyContent: 'center',

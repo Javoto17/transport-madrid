@@ -1,15 +1,12 @@
 {
   "expo": {
-    "name": "transport",
-    "description": "A very interesting project.",
-    "slug": "transport",
+    "name": "Transporte Madrid",
+    "description": "Transport app",
+    "slug": "transporte",
     "privacy": "public",
-    "sdkVersion": "32.0.0",
-    "platforms": [
-      "ios",
-      "android"
-    ],
-    "version": "1.0.0",
+    "sdkVersion": "33.0.0",
+    "platforms": ["ios", "android"],
+    "version": "0.0.5",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "splash": {
@@ -20,28 +17,31 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": false
     },
     "android": {
-      "package": "com.transport",
+      "versionCode": 5,
+      "package": "com.transport.rn",
       "config": {
         "googleMaps": {
+          "apiKey": "AIzaSyCIMl-tmvP7Emtnt6od3wcQjZwoEYE9sFQ"
         }
-      }
+      },
+      "permissions": []
     },
     "hooks": {
-      "postPublish": [{
-        "file": "sentry-expo/upload-sourcemaps",
-        "config": {
-          "organization": "javoto17",
-          "project": "transport-madrid",
-          "authToken": "0e70167e36e411e995314201c0a8d032"
+      "postPublish": [
+        {
+          "file": "sentry-expo/upload-sourcemaps",
+          "config": {
+            "organization": "javoto17",
+            "project": "transport-madrid",
+            "authToken": "0e70167e36e411e995314201c0a8d032"
+          }
         }
-      }]
+      ]
     }
   }
 }

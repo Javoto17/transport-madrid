@@ -3,6 +3,7 @@ import AppView from './AppView';
 
 import {
   loadFavorites,
+  loginEmt,
 } from './modules/Bus/actions';
 
 export default connect(
@@ -10,5 +11,6 @@ export default connect(
     listFavorites: state.bus.listFavorites,
   }), {
     loadFavorites,
+    loginEmt,
   },
 )(AppView);

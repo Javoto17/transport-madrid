@@ -1,10 +1,10 @@
 import React, { PureComponent } from 'react';
-import { Font } from 'expo';
+import * as Font from 'expo-font';
 import { StatusBar, Platform } from 'react-native';
 import { SafeAreaView } from 'react-navigation';
 import PropTypes from 'prop-types';
-import Sentry from 'sentry-expo';
 
+import NavigationService from './AppNavigatorService';
 import AppNavigator from './AppNavigator';
 
 const nunitoBold = require('../assets/fonts/nunito/Nunito-Bold.ttf');
@@ -21,8 +21,9 @@ class AppView extends PureComponent {
   }
 
   componentWillMount() {
-    const { loadFavorites } = this.props;
+    const { loadFavorites, loginEmt } = this.props;
 
+    loginEmt();
     loadFavorites();
   }
 
@@ -31,10 +32,7 @@ class AppView extends PureComponent {
       'nunito-bold': nunitoBold,
       'nunito-regular': nunitoRegular,
       'nunito-light': nunitoLight,
-
     });
-    Sentry.enableInExpoDevelopment = false;
-    Sentry.config('https://a8796fb88fc24feaaa9df5ed08b92530@sentry.io/1400694').install();
 
     this.setState({ fontLoaded: true });
   }
@@ -43,9 +41,18 @@ class AppView extends PureComponent {
     const { fontLoaded } = this.state;
 
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: '#ffffff' }} forceInset={{ top: 'always', bottom: 'never', horizontal: 'never' }}>
+      <SafeAreaView
+        style={{ flex: 1, backgroundColor: '#ffffff' }}
+        forceInset={{ top: 'always', bottom: 'never', horizontal: 'never' }}
+      >
         {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
-        {fontLoaded && <AppNavigator />}
+        {fontLoaded && (
+          <AppNavigator
+            ref={(navigatorRef) => {
+              NavigationService.setTopLevelNavigator(navigatorRef);
+            }}
+          />
+        )}
       </SafeAreaView>
     );
   }
@@ -53,11 +60,12 @@ class AppView extends PureComponent {
 
 AppView.defaultProps = {
   loadFavorites: PropTypes.func,
-
+  loginEmt: PropTypes.func,
 };
 
 AppView.propTypes = {
   loadFavorites: PropTypes.func,
+  loginEmt: PropTypes.func,
 };
 
 export default AppView;

@@ -68,6 +68,28 @@ export const fetchBusStopSuccess = payload => ({
   payload,
 });
 
+export const fetchBusStopError = payload => ({
+  type: t.FETCH_BUS_STOP_ERROR,
+  payload,
+});
+
+export const fetchBusStopTimes = idStop => ({
+  type: t.FETCH_BUS_STOP_TIMES,
+  payload: {
+    idStop,
+  },
+});
+
+export const fetchBusStopTimesSuccess = payload => ({
+  type: t.FETCH_BUS_STOP_TIMES_SUCCESS,
+  payload,
+});
+
+export const fetchBusStopTimesError = payload => ({
+  type: t.FETCH_BUS_STOP_TIMES_ERROR,
+  payload,
+});
+
 export const addFavorite = item => ({
   type: t.ADD_FAVORITE,
   payload: {
@@ -99,6 +121,16 @@ export const loadFavorites = payload => ({
 
 export const loadFavoritesSuccess = payload => ({
   type: t.LOAD_FAVORITES_SUCCESS,
+  payload,
+});
+
+export const loginEmt = payload => ({
+  type: t.LOGIN_EMT,
+  payload,
+});
+
+export const loginEmtSuccess = payload => ({
+  type: t.LOGIN_EMT_SUCCESS,
   payload,
 });
 

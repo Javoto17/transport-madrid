@@ -5,38 +5,40 @@ import {
   takeLatest,
   takeEvery,
   select,
+  all,
 } from 'redux-saga/effects';
 import * as actions from './actions';
 import * as t from './actionTypes';
 import * as api from './api';
 
+import NavigationService from '../../AppNavigatorService';
+
 const getListFavorites = state => state.bus.listFavorites;
+const getIsLogin = state => state.bus.isLogin;
 
 function* fetchListLines() {
   try {
-    const response = yield call(api.getListLines);
-    yield put(actions.fetchListLinesSuccess(response.data));
+    const isLogin = yield select(getIsLogin);
+    if (isLogin) {
+      const response = yield call(api.getListLines);
+      yield put(actions.fetchListLinesSuccess(response.data));
+    }
   } catch (e) {
-    // console.error(e);
+    console.error(e);
   }
 }
 
-function* fetchInfoLine({
-  payload,
-}) {
+function* fetchInfoLine({ payload }) {
   try {
     const response = yield call(api.getRoutesLine, payload);
     yield put(actions.getFavorites());
-    // console.log(response);
     yield put(actions.fetchInfoLineSuccess(response.data));
   } catch (e) {
     // console.error(e);
   }
 }
 
-function* fetchDirectionLine({
-  payload,
-}) {
+function* fetchDirectionLine({ payload }) {
   try {
     const response = yield call(api.getDirectionLine, payload);
     yield put(actions.fetchDirectionLineSuccess(response.data));
@@ -66,20 +68,55 @@ function* loadFavorites() {
   }
 }
 
-function* fetchBusStop({
-  payload,
-}) {
+function* setToken() {
   try {
-    const response = yield call(api.fetchBusStop, payload);
-    if (response) {
-      yield put(actions.fetchBusStopSuccess(response.data));
-      // console.log(response);
+    const response = yield all([call(api.clearToken), call(api.loginEmt)]);
+    console.log(response);
+    const { accessToken } = response[1].data.data[0];
+    console.log(accessToken);
+    if (accessToken) {
+      yield all([
+        call(api.saveToken, accessToken),
+        put(actions.loginEmtSuccess()),
+        put(actions.fetchListLines()),
+      ]);
     }
   } catch (e) {
-    // console.error(e);
+    console.log('error', e);
   }
 }
 
+function* fetchBusStopInfo({ payload }) {
+  try {
+    const [detail] = yield all([call(api.fetchBusStop, payload)]);
+    const listFavorites = yield select(getListFavorites);
+    if (detail) {
+      yield put(
+        actions.fetchBusStopSuccess({
+          detail: detail.data,
+        }),
+      );
+      const busStop = detail.data.data[0].stops[0];
+      NavigationService.navigate('DetailStop', {
+        detailStop: {
+          ...busStop,
+          isFavorite: !!listFavorites.find(el => el.stop === busStop.stop),
+        },
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+}
+
+function* fetchBusStopTimes({ payload }) {
+  try {
+    const response = yield call(api.fetchBusStopTimes, payload);
+    yield put(actions.fetchBusStopTimesSuccess(response.data));
+  } catch (e) {
+    console.log(e);
+  }
+}
 
 export function* watchFetchListLines() {
   yield takeLatest(t.FETCH_LIST_LINES, fetchListLines);
@@ -90,14 +127,24 @@ export function* watchFetchInfoLine() {
 export function* watchFetchDirectionLine() {
   yield takeLatest(t.FETCH_DIRECTION_LINE, fetchDirectionLine);
 }
+
 export function* watchFetchBusStop() {
-  yield takeLatest(t.FETCH_BUS_STOP, fetchBusStop);
+  yield takeLatest(t.FETCH_BUS_STOP, fetchBusStopInfo);
 }
+
+export function* watchFetchBusStopTimes() {
+  yield takeLatest(t.FETCH_BUS_STOP_TIMES, fetchBusStopTimes);
+}
+
 export function* watchSaveFavorite() {
   yield takeLatest(t.ADD_FAVORITE, saveFavorites);
   yield takeLatest(t.DELETE_FAVORITE, saveFavorites);
 }
 
 export function* watchLoadFavorites() {
-  yield takeEvery(t.LOAD_FAVORITES, loadFavorites);
+  yield takeLatest(t.LOAD_FAVORITES, loadFavorites);
+}
+
+export function* watchLogin() {
+  yield takeEvery(t.LOGIN_EMT, setToken);
 }

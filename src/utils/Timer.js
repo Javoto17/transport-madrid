@@ -1,9 +1,11 @@
 export const getTime = (time) => {
-  if (time >= 1200) {
-    return '>20';
+  const parseTime = parseInt(time, 10);
+
+  if (parseTime >= 1200) {
+    return '>20 min';
   }
-  if (time === 0) {
+  if (parseTime === 0) {
     return '>>';
   }
-  return ((time % 3600) / 60).toFixed();
+  return `${((parseTime % 3600) / 60).toFixed()} min`;
 };

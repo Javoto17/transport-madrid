@@ -8,8 +8,9 @@ import {
   ScrollView,
 } from 'react-native';
 import PropTypes from 'prop-types';
-import { MapView } from 'expo';
+import MapView from 'react-native-maps';
 import { withNavigation } from 'react-navigation';
+import { MaterialIcons } from '@expo/vector-icons';
 
 import ActivityIndicator from '../components/ActivityIndicator/ActivityIndicator';
 import BackHeader from '../components/BackHeader/BackHeader';
@@ -21,7 +22,7 @@ import { convertLineNumber } from '../../utils/Stops';
 
 class DetailStopView extends Component {
   static navigationOptions = ({ navigation }) => ({
-    title: `Parada - ${navigation.getParam('detailStop').stopId}`,
+    title: `Parada - ${navigation.getParam('detailStop').stop}`,
     headerLeft: <BackHeader navigation={navigation} />,
     headerRight: (
       <View
@@ -39,7 +40,7 @@ class DetailStopView extends Component {
   });
 
   componentDidMount() {
-    const { fetchBusStop, navigation } = this.props;
+    const { fetchBusStopTimes, navigation } = this.props;
     const {
       state: {
         params: { detailStop },
@@ -49,10 +50,10 @@ class DetailStopView extends Component {
     navigation.setParams({
       addFavorite: this.addFavorite,
       deleteFavorite: this.deleteFavorite,
-      fetchBusStop: () => fetchBusStop(detailStop.stopId),
+      fetchBusStopTimes: () => fetchBusStopTimes(detailStop.stop),
     });
 
-    fetchBusStop(detailStop.stopId);
+    fetchBusStopTimes(detailStop.stop);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -85,11 +86,10 @@ class DetailStopView extends Component {
         params: { detailStop },
       },
     } = navigation;
-
     addFavorite(detailStop);
   };
 
-  keyExtractor = item => `busStop-${item.lineId}`;
+  keyExtractor = item => `busStop-${item.line}`;
 
   deleteFavorite = () => {
     const { deleteFavorite, navigation } = this.props;
@@ -110,7 +110,9 @@ class DetailStopView extends Component {
       ios: 'maps:0,0?q=',
       android: 'geo:0,0?q=',
     });
-    const latLng = `${item.latitude},${item.longitude}`;
+    const latLng = `${item.geometry.coordinates[1]},${
+      item.geometry.coordinates[0]
+    }`;
     const label = `${item.postalAddress}`;
     const url = Platform.select({
       ios: `${scheme}${label}@${latLng}`,
@@ -121,39 +123,44 @@ class DetailStopView extends Component {
   };
 
   _renderItem = ({ item }) => {
-    const { infoStop } = this.props;
+    const {
+      infoStop: { times },
+    } = this.props;
 
     if (!item) {
       return null;
     }
+    const timesStop = Array.isArray(times) ? times : [{ ...times }];
 
-    const timesStop = Array.isArray(infoStop) ? infoStop : [{ ...infoStop }];
-
-    const myTimes = timesStop.filter(el => el.lineId === item.lineId);
+    const myTimes = timesStop.filter(el => el.line === item.line);
 
     if (myTimes) {
       return (
         <View style={{ flex: 1, flexDirection: 'row', paddingBottom: 4 }}>
           <View style={{ flex: 0.33, alignItems: 'center' }}>
-            <Text style={{ fontFamily: 'nunito-regular', fontSize: 18 }}>
-              {`${item.lineId}`}
+            <Text style={{ fontFamily: 'nunito-bold', fontSize: 18 }}>
+              {`${item.line}`}
             </Text>
           </View>
           <View style={{ flex: 0.33, alignItems: 'center' }}>
-            {!!myTimes[0] && !!myTimes[0].busTimeLeft && (
-              <Text
-                style={{ fontFamily: 'nunito-light', fontSize: 18 }}
-              >
-                {`${getTime(myTimes[0].busTimeLeft)}`}
+            {!!myTimes[0] && Number.isInteger(myTimes[0].estimateArrive) ? (
+              <Text style={{ fontFamily: 'nunito-light', fontSize: 18 }}>
+                {`${getTime(myTimes[0].estimateArrive)}`}
+              </Text>
+            ) : (
+              <Text style={{ fontFamily: 'nunito-light', fontSize: 18 }}>
+                {'-'}
               </Text>
             )}
           </View>
           <View style={{ flex: 0.33, alignItems: 'center' }}>
-            {!!myTimes[1] && !!myTimes[1].busTimeLeft && (
-              <Text
-                style={{ fontFamily: 'nunito-light', fontSize: 18 }}
-              >
-                {`${getTime(myTimes[1].busTimeLeft)}`}
+            {!!myTimes[1] && Number.isInteger(myTimes[1].estimateArrive) ? (
+              <Text style={{ fontFamily: 'nunito-light', fontSize: 18 }}>
+                {`${getTime(myTimes[1].estimateArrive)}`}
+              </Text>
+            ) : (
+              <Text style={{ fontFamily: 'nunito-light', fontSize: 18 }}>
+                {'-'}
               </Text>
             )}
           </View>
@@ -167,13 +174,13 @@ class DetailStopView extends Component {
   renderHeader = () => (
     <View style={{ flex: 1, flexDirection: 'row' }}>
       <View style={{ flex: 0.33, alignItems: 'center', paddingVertical: 2 }}>
-        <Text style={{ fontFamily: 'nunito-bold', fontSize: 24 }}>Línea</Text>
+        <Text style={{ fontFamily: 'nunito-bold', fontSize: 22 }}>Línea</Text>
       </View>
       <View style={{ flex: 0.33, alignItems: 'center', paddingVertical: 2 }}>
-        <Text style={{ fontFamily: 'nunito-bold', fontSize: 24 }}>Primero</Text>
+        <Text style={{ fontFamily: 'nunito-bold', fontSize: 22 }}>Primero</Text>
       </View>
       <View style={{ flex: 0.33, alignItems: 'center', paddingVertical: 2 }}>
-        <Text style={{ fontFamily: 'nunito-bold', fontSize: 24 }}>Segundo</Text>
+        <Text style={{ fontFamily: 'nunito-bold', fontSize: 22 }}>Segundo</Text>
       </View>
     </View>
   );
@@ -186,9 +193,9 @@ class DetailStopView extends Component {
       },
     } = navigation;
 
-    const linesTime = Array.isArray(detailStop.lineId)
-      ? detailStop.lineId.map(el => Object.assign({}, { lineId: convertLineNumber(el) }))
-      : [{ lineId: convertLineNumber(detailStop.lineId) }];
+    const linesTime = Array.isArray(detailStop.dataLine)
+      ? detailStop.dataLine.map(el => Object.assign({}, { line: convertLineNumber(el) }))
+      : [{ line: convertLineNumber(detailStop.line) }];
 
     return (
       <ScrollView
@@ -214,15 +221,15 @@ class DetailStopView extends Component {
               <Text
                 style={{
                   fontFamily: 'nunito-bold',
-                  fontSize: 16,
+                  fontSize: 18,
                   color: 'black',
                 }}
               >
-                {`PARADA Nº ${detailStop.stopId}`}
+                {`PARADA Nº ${detailStop.stop}`}
               </Text>
               <Text
                 style={{
-                  fontFamily: 'nunito-light',
+                  fontFamily: 'nunito-regular',
                   fontSize: 16,
                   color: '#4c4c4c',
                 }}
@@ -232,12 +239,15 @@ class DetailStopView extends Component {
               <Text
                 onPress={this._handlePressDirections}
                 style={{
-                  fontFamily: 'nunito-bold',
-                  fontSize: 14,
+                  fontFamily: 'nunito-regular',
+                  fontSize: 16,
                   color: '#4c4c4c',
+                  display: 'flex',
+                  alignItems: 'center',
                 }}
               >
                 {detailStop.postalAddress}
+                <MaterialIcons name="location-on" size={16} color="#4c4c4c" />
               </Text>
             </View>
           </View>
@@ -283,8 +293,8 @@ class DetailStopView extends Component {
             }}
             onPress={this._handlePressDirections}
             initialRegion={{
-              latitude: detailStop.latitude,
-              longitude: detailStop.longitude,
+              latitude: detailStop.geometry.coordinates[1],
+              longitude: detailStop.geometry.coordinates[0],
               latitudeDelta: 0.0021,
               longitudeDelta: 0.0021,
             }}
@@ -292,8 +302,8 @@ class DetailStopView extends Component {
           >
             <MapView.Marker
               coordinate={{
-                latitude: detailStop.latitude,
-                longitude: detailStop.longitude,
+                latitude: detailStop.geometry.coordinates[1],
+                longitude: detailStop.geometry.coordinates[0],
               }}
               onPress={this._handlePressDirections}
             />
@@ -305,46 +315,45 @@ class DetailStopView extends Component {
 }
 
 DetailStopView.defaultProps = {
-  fetchBusStop: this.fetchBusStop,
-  infoStop: PropTypes.arrayOf(
-    PropTypes.shape({
-      lineId: PropTypes.string,
-      busTimeLeft: PropTypes.number,
-    }),
-  ),
+  fetchBusStopTimes: this.fetchBusStopTimes,
+  infoStop: PropTypes.shape({
+    times: PropTypes.arrayOf(
+      PropTypes.shape({
+        line: PropTypes.string,
+        estimateArrive: PropTypes.number,
+      }),
+    ),
+  }),
   navigation: this.navigation,
   addFavorite: PropTypes.func,
   deleteFavorite: PropTypes.func,
   loadingArrives: PropTypes.bool,
   detailStop: PropTypes.shape({
     isFavorite: PropTypes.bool,
-    lineId: PropTypes.string,
+    line: PropTypes.string,
   }),
 };
 
 DetailStopView.propTypes = {
-  fetchBusStop: PropTypes.func,
+  fetchBusStopTimes: PropTypes.func,
   addFavorite: PropTypes.func,
   deleteFavorite: PropTypes.func,
   loadingArrives: PropTypes.bool,
   navigation: PropTypes.shape({
     navigate: PropTypes.func,
   }),
-  infoStop: PropTypes.oneOfType([
-    PropTypes.arrayOf(
+  infoStop: PropTypes.shape({
+    times: PropTypes.arrayOf(
       PropTypes.shape({
-        lineId: PropTypes.string,
-        busTimeLeft: PropTypes.number,
+        line: PropTypes.string,
+        estimateArrive: PropTypes.number,
       }),
     ),
-    PropTypes.shape({
-      lineId: PropTypes.string,
-      busTimeLeft: PropTypes.number,
-    }),
-  ]),
+    // detail: PropTypes.shape({}),
+  }),
   detailStop: PropTypes.shape({
     isFavorite: PropTypes.bool,
-    lineId: PropTypes.oneOfType([
+    line: PropTypes.oneOfType([
       PropTypes.arrayOf(PropTypes.string),
       PropTypes.string,
     ]),

@@ -27,45 +27,39 @@ class StopRow extends PureComponent {
     } else {
       addFavorite(item);
     }
-  }
+  };
 
   render() {
     const {
-      item,
-      index,
-      navigation,
-      isFavorite,
+      item, index, navigation, isFavorite,
     } = this.props;
 
-    const lines = Array.isArray(item.lineId) ? item.lineId.map(el => convertLineNumber(el)) : convertLineNumber(item.lineId);
-
+    const lines = Array.isArray(item.dataLine)
+      ? item.dataLine.map(el => convertLineNumber(el))
+      : convertLineNumber(item.dataLine);
 
     return (
       <BusStopContainer
-        key={`line-${item.stopId}-${item.pmv}`}
+        key={`line-${item.stop}-${item.pmv}`}
         isEven={index % 2}
         onPress={() => navigation.navigate('DetailStop', { detailStop: item })}
       >
         <BusStopContentNumber>
-          <BusStopNumber>
-            {item.stopId}
-          </BusStopNumber>
+          <BusStopNumber>{item.stop}</BusStopNumber>
         </BusStopContentNumber>
         <BusStopContent>
-          <BusStopText numberOfLines={1}>
-            {`${item.name}`}
-          </BusStopText>
+          <BusStopText numberOfLines={1}>{`${item.name}`}</BusStopText>
           <SubTextBusStop numberOfLines={1}>
             {item.postalAddress}
           </SubTextBusStop>
           <SubTextBusStop numberOfLines={2}>
-            {Array.isArray(lines) ? `Líneas: ${lines.join(' ')}` : `Línea: ${lines}`}
+            {Array.isArray(lines)
+              ? `Líneas: ${lines.join(' ')}`
+              : `Línea: ${lines}`}
           </SubTextBusStop>
         </BusStopContent>
         <BusStopContentNumber>
-          <TouchableOpacity
-            onPress={() => this.actionFavorite(item)}
-          >
+          <TouchableOpacity onPress={() => this.actionFavorite(item)}>
             <FontAwesome
               name="star"
               style={{ color: isFavorite ? '#027bff' : '#99a2b4' }}
@@ -83,24 +77,23 @@ StopRow.defaultProps = {
   index: 0,
   isFavorite: false,
   navigation: this.navigation,
-  addFavorite: () => { },
-  deleteFavorite: () => { },
+  addFavorite: () => {},
+  deleteFavorite: () => {},
 };
 
 StopRow.propTypes = {
   index: PropTypes.number,
   item: PropTypes.shape({
-    stop: PropTypes.arrayOf(PropTypes.shape({
-      stopId: PropTypes.string,
-      name: PropTypes.string,
-      pmv: PropTypes.number,
-      postalAddress: PropTypes.string,
-      isFavorite: PropTypes.bool,
-      lineId: PropTypes.oneOfType([
-        PropTypes.arrayOf(PropTypes.string),
-        PropTypes.string,
-      ]),
-    })),
+    stop: PropTypes.string,
+    name: PropTypes.string,
+    pmv: PropTypes.string,
+    postalAddress: PropTypes.string,
+    isFavorite: PropTypes.bool,
+    dataLine: PropTypes.oneOfType([
+      PropTypes.arrayOf(PropTypes.string),
+      PropTypes.arrayOf(PropTypes.shape({ line: PropTypes.string })),
+      PropTypes.string,
+    ]),
   }),
   navigation: PropTypes.shape({
     navigate: PropTypes.func,

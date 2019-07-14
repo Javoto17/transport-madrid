@@ -4,7 +4,11 @@ import {
   FlatList,
   Platform,
   Animated,
+  Text,
+  Dimensions,
 } from 'react-native';
+import { TabView, TabBar } from 'react-native-tab-view';
+
 import PropTypes from 'prop-types';
 import { withNavigation } from 'react-navigation';
 
@@ -27,22 +31,26 @@ class HomeView extends Component {
     this.state = {
       searchValue: '',
       openSearch: false,
+      index: 0,
+      routes: [
+        { key: 'stops', title: 'Paradas' },
+        { key: 'lines', title: 'Líneas' },
+      ],
     };
 
     this.navigation = props.navigation;
   }
 
   componentDidMount() {
-    const { fetchListLines } = this.props;
-    const { searchValue, openSearch } = this.state;
-
-    fetchListLines();
+    const { searchValue, openSearch, index } = this.state;
 
     this.navigation.setParams({
       onChangeText: this.onChangeText,
       searchValue,
       openSearch,
+      index,
       changeHeader: this.changeHeader,
+      searchStop: this.searchStop,
     });
   }
 
@@ -69,39 +77,73 @@ class HomeView extends Component {
     const { openSearch, searchValue } = this.state;
     const { navigation, filterLinesByCriterial } = this.props;
 
-    this.setState({
-      openSearch: !openSearch,
-      searchValue: !openSearch ? '' : searchValue,
-    }, () => {
-      navigation.setParams({
+    this.setState(
+      {
         openSearch: !openSearch,
         searchValue: !openSearch ? '' : searchValue,
-      });
+      },
+      () => {
+        navigation.setParams({
+          openSearch: !openSearch,
+          searchValue: !openSearch ? '' : searchValue,
+        });
+        if (openSearch) {
+          filterLinesByCriterial(null);
+        }
+      },
+    );
+  };
 
-      if (openSearch) {
-        filterLinesByCriterial(null);
-      }
-    });
-  }
+  onChangeIndex = (i) => {
+    const { navigation } = this.props;
+
+    this.setState(
+      {
+        index: i,
+      },
+      () => {
+        navigation.setParams({
+          index: i,
+        });
+      },
+    );
+  };
 
   onChangeText = (searchValue) => {
     const { navigation, filterLinesByCriterial } = this.props;
+    const { openSearch, index } = this.state;
 
-    // console.log(searchValue);
-
-    this.setState({
-      searchValue,
-    }, () => {
-      filterLinesByCriterial(searchValue);
-      navigation.setParams({
+    this.setState(
+      {
         searchValue,
-      });
-    });
-  }
+        openSearch:
+          searchValue.length === 0 && index === 0 ? false : openSearch,
+      },
+      () => {
+        filterLinesByCriterial(searchValue);
+        navigation.setParams({
+          searchValue,
+          openSearch:
+            searchValue.length === 0 && index === 0 ? false : openSearch,
+        });
+      },
+    );
+  };
 
-  getItemLayout = (data, index) => (
-    { length: ITEM_HEIGHT, offset: ITEM_HEIGHT * index, index }
-  );
+  searchStop = () => {
+    const { searchValue } = this.state;
+    const { fetchBusStop } = this.props;
+
+    if (searchValue.length > 0) {
+      fetchBusStop(searchValue);
+    }
+  };
+
+  getItemLayout = (data, index) => ({
+    length: ITEM_HEIGHT,
+    offset: ITEM_HEIGHT * index,
+    index,
+  });
 
   keyExtractor = item => `line-${item.line}`;
 
@@ -112,58 +154,122 @@ class HomeView extends Component {
       return null;
     }
 
-    return (
-      <LineRow
-        item={item}
-        index={index}
-        navigation={navigation}
+    return <LineRow item={item} index={index} navigation={navigation} />;
+  };
+
+  renderList = () => {
+    const { isLoading, listLinesFiltered } = this.props;
+
+    return isLoading ? (
+      <AnimatedFL
+        data={listLinesFiltered}
+        removeClippedSubviews={Platform.OS === 'android'}
+        renderItem={this.renderItem}
+        keyExtractor={this.keyExtractor}
+        initialNumToRender={10}
+        windowSize={10}
+        getItemLayout={this.getItemLayout}
       />
+    ) : (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator />
+      </View>
     );
-  }
+  };
+
+  emptyStops = () => {
+    const { isLoading } = this.props;
+
+    return isLoading ? (
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        <Text
+          style={{
+            fontFamily: 'nunito-regular',
+            fontSize: 20,
+            color: 'black',
+          }}
+        >
+          Introduce el codigo de la parada
+        </Text>
+      </View>
+    ) : (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator />
+      </View>
+    );
+  };
 
   render() {
-    const { isLoading, listLinesFiltered, collapsible } = this.props;
-    const { paddingHeight, animatedY, onScroll } = collapsible;
+    const { openSearch, index, routes } = this.state;
 
     return (
       <View style={{ flex: 1, backgroundColor: '#fafbfd' }}>
-        {isLoading ? (
-          <AnimatedFL
-            data={listLinesFiltered}
-            removeClippedSubviews={Platform.OS === 'android'}
-            renderItem={this.renderItem}
-            keyExtractor={this.keyExtractor}
-            initialNumToRender={10}
-            windowSize={10}
-            getItemLayout={this.getItemLayout}
-          // contentContainerStyle={{ paddingTop: paddingHeight }}
-          // scrollIndicatorInsets={{ top: paddingHeight }}
-          // onScroll={onScroll}
-          // _mustAddThis={animatedY}
+        {!openSearch && this.renderList()}
+        {openSearch && (
+          <TabView
+            navigationState={{ index, routes }}
+            renderTabBar={props => (
+              <TabBar
+                {...props}
+                renderLabel={({ route, focused }) => (
+                  <View
+                    style={{
+                      borderRadius: 6,
+                      paddingVertical: 8,
+                      paddingHorizontal: 24,
+                      overFlow: 'hidden',
+                      backgroundColor: focused ? '#027bff' : 'transparent',
+                    }}
+                  >
+                    <Text
+                      style={{
+                        color: focused ? '#fff' : '#4c4c4c',
+                        fontFamily: 'nunito-bold',
+                      }}
+                    >
+                      {route.title}
+                    </Text>
+                  </View>
+                )}
+                indicatorStyle={{ backgroundColor: '027bff' }}
+                style={{
+                  backgroundColor: '#fff',
+                  color: '#027bff',
+                  elevation: 0,
+                  borderBottomWidth: 1,
+                  borderColor: '#d0d8e8',
+                }}
+              />
+            )}
+            renderScene={({ route }) => {
+              switch (route.key) {
+              case 'stops':
+                return this.emptyStops();
+              case 'lines':
+                return this.renderList();
+              default:
+                return null;
+              }
+            }}
+            onIndexChange={this.onChangeIndex}
+            initialLayout={{ width: Dimensions.get('window').width }}
           />
-        ) : (
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <ActivityIndicator />
-          </View>
         )}
       </View>
     );
   }
 }
 
-// const collapsibleParams = {
-//   iOSCollapsedColor: 'red',
-//   collapsibleComponent: SearchHeader,
-//   collapsibleBackgroundStyle: {
-//     height: 60,
-//     backgroundColor: 'red',
-//     // disableFadeoutInnerComponent: true,
-//   },
-// };
-
 HomeView.defaultProps = {
-  fetchListLines: () => { },
-  filterLinesByCriterial: () => { },
+  fetchListLines: () => {},
+  filterLinesByCriterial: () => {},
+  fetchBusStop: () => {},
   isLoading: false,
   listLinesFiltered: [],
   navigation: this.navigation,
@@ -184,6 +290,7 @@ HomeView.propTypes = {
     navigate: PropTypes.func,
   }),
   filterLinesByCriterial: PropTypes.func,
+  fetchBusStop: PropTypes.func,
   collapsible: PropTypes.shape({
     paddingHeight: PropTypes.number,
     scrollY: PropTypes.number,

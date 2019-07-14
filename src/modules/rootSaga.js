@@ -7,6 +7,8 @@ import {
   watchSaveFavorite,
   watchLoadFavorites,
   watchFetchBusStop,
+  watchLogin,
+  watchFetchBusStopTimes,
 } from './Bus/sagas';
 
 export default function* rootSaga() {
@@ -17,6 +19,7 @@ export default function* rootSaga() {
     spawn(watchSaveFavorite),
     spawn(watchLoadFavorites),
     spawn(watchFetchBusStop),
-    spawn(watchFetchBusStop),
+    spawn(watchFetchBusStopTimes),
+    spawn(watchLogin),
   ]);
 }

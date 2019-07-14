@@ -1,8 +1,5 @@
 import React, { Component } from 'react';
-import {
-  View,
-  TouchableOpacity,
-} from 'react-native';
+import { View, TouchableOpacity } from 'react-native';
 import PropTypes from 'prop-types';
 import { FontAwesome } from '@expo/vector-icons';
 import { withNavigation } from 'react-navigation';
@@ -13,12 +10,14 @@ class DirectionLineView extends Component {
   static navigationOptions = ({ navigation }) => ({
     title: 'Dirección',
     headerLeft: (
-      <View
-        style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
-      >
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
         <TouchableOpacity
           onPress={() => navigation.goBack()}
-          style={{ alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16 }}
+          style={{
+            alignItems: 'center',
+            justifyContent: 'center',
+            paddingHorizontal: 16,
+          }}
         >
           <FontAwesome
             name="angle-left"
@@ -54,14 +53,28 @@ class DirectionLineView extends Component {
       return null;
     }
 
-    const line = infoLine.Line;
+    const line = infoLine;
 
     return (
-      <DirectionContainer key={`line-direction-${directionLine}`} onPress={() => navigation.navigate('DetailLine', { lineNumber, directionLine })}>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+      <DirectionContainer
+        key={`line-direction-${directionLine}`}
+        onPress={() => navigation.navigate('DetailLine', { lineNumber, directionLine })
+        }
+      >
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
           <View style={{ paddingHorizontal: 4 }}>
             <LineText>
-              {`${direction && line && line.headerB && line.headerA ? line.headerA : line.headerB}`}
+              {`${
+                direction && line && line.nameB && line.nameA
+                  ? line.nameA
+                  : line.nameB
+              }`}
             </LineText>
           </View>
           <View style={{ paddingHorizontal: 4, alignItems: 'center' }}>
@@ -73,7 +86,11 @@ class DirectionLineView extends Component {
           </View>
           <View style={{ paddingHorizontal: 4 }}>
             <LineText>
-              {`${direction && line && line.headerB && line.headerA ? line.headerB : line.headerA}`}
+              {`${
+                direction && line && line.nameB && line.nameA
+                  ? line.nameB
+                  : line.nameA
+              }`}
             </LineText>
           </View>
         </View>
@@ -93,16 +110,8 @@ class DirectionLineView extends Component {
 
     return (
       <View style={{ flex: 1, backgroundColor: '#fafbfd' }}>
-        <View>
-          {
-            this.renderDirection(directionLine, false)
-          }
-        </View>
-        <View>
-          {
-            this.renderDirection(directionLine, true)
-          }
-        </View>
+        <View>{this.renderDirection(directionLine, false)}</View>
+        <View>{this.renderDirection(directionLine, true)}</View>
       </View>
     );
   }
@@ -112,21 +121,18 @@ DirectionLineView.defaultProps = {
   fetchDirectionLine: this.fetchDirectionLine,
   directionLine: PropTypes.shape({
     Line: PropTypes.shape({
-      headerA: PropTypes.string,
-      headerB: PropTypes.string,
+      nameA: PropTypes.string,
+      nameB: PropTypes.string,
     }),
   }),
   navigation: this.navigation,
-
 };
 
 DirectionLineView.propTypes = {
   fetchDirectionLine: PropTypes.func,
   directionLine: PropTypes.shape({
-    Line: PropTypes.shape({
-      headerA: PropTypes.string,
-      headerB: PropTypes.string,
-    }),
+    nameA: PropTypes.string,
+    nameB: PropTypes.string,
   }),
   navigation: PropTypes.shape({
     navigate: PropTypes.func,

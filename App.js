@@ -1,12 +1,10 @@
 import React from 'react';
-import {
-  AppLoading,
-  Asset,
-  Constants,
-} from 'expo';
+import { AppLoading, Asset } from 'expo';
+import Constants from 'expo-constants';
 import { Provider } from 'react-redux';
 import PropTypes from 'prop-types';
 import { setExpoStatusBarHeight } from 'react-navigation-collapsible';
+import Sentry from 'sentry-expo';
 import createStore from './src/modules/createStore';
 import AppContainer from './src/AppContainer';
 
@@ -21,12 +19,13 @@ export default class App extends React.Component {
     isLoadingComplete: false,
   };
 
-  _loadResourcesAsync = async () => Promise.all([
-    Asset.loadAsync([
-      dev,
-      prod,
-    ]),
-  ]);
+  componentDidMount() {
+    Sentry.config(
+      'https://a8796fb88fc24feaaa9df5ed08b92530@sentry.io/1400694',
+    ).install();
+  }
+
+  _loadResourcesAsync = async () => Promise.all([Asset.loadAsync([dev, prod])]);
 
   _handleLoadingError = (error) => {
     // In this case, you might want to report the error to your error
@@ -58,7 +57,6 @@ export default class App extends React.Component {
     );
   }
 }
-
 
 App.defaultProps = {
   skipLoadingScreen: PropTypes.func,
