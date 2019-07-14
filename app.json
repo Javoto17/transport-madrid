@@ -26,7 +26,7 @@
       "package": "com.transport.rn",
       "config": {
         "googleMaps": {
-          "apiKey": "AIzaSyCIMl-tmvP7Emtnt6od3wcQjZwoEYE9sFQ"
+          "apiKey": ""
         }
       },
       "permissions": []
@@ -38,7 +38,7 @@
           "config": {
             "organization": "javoto17",
             "project": "transport-madrid",
-            "authToken": "0e70167e36e411e995314201c0a8d032"
+            "authToken": "",
           }
         }
       ]
