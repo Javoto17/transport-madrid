@@ -119,7 +119,11 @@ class DetailStopView extends Component {
       android: `${scheme}${latLng}(${label})`,
     });
 
-    Linking.openURL(url);
+    Linking.canOpenURL(url)
+      .then(supported => (!supported
+        ? console.log(`Can't handle url: ${url}`)
+        : Linking.openURL(url)))
+      .catch(err => console.error('An error occurred', err));
   };
 
   _renderItem = ({ item }) => {
